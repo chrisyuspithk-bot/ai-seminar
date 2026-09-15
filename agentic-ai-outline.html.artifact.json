@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "agentic-ai-outline.html",
+  "entry": "agentic-ai-outline.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-09-14T09:10:40.378Z",
+  "updatedAt": "2026-09-14T09:10:40.378Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

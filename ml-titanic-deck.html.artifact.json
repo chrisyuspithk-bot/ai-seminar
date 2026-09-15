@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "deck",
+  "title": "ml-titanic-deck.html",
+  "entry": "ml-titanic-deck.html",
+  "renderer": "deck-html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-09-14T09:31:00.000Z",
+  "updatedAt": "2026-09-15T09:00:00.000Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

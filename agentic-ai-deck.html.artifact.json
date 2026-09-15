@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "deck",
+  "title": "agentic-ai-deck.html",
+  "entry": "agentic-ai-deck.html",
+  "renderer": "deck-html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-09-14T09:05:07.636Z",
+  "updatedAt": "2026-09-14T09:05:07.636Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "deck",
+  "title": "ai-llm-lmstudio-deck.html",
+  "entry": "ai-llm-lmstudio-deck.html",
+  "renderer": "deck-html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-09-14T08:22:19.806Z",
+  "updatedAt": "2026-09-14T08:22:19.806Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

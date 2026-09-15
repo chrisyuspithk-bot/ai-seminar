@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>《你今天，用了幾次 AI？》核心概念 · 從圖靈到代理人</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── tokens — 沿用簡報與大綱頁的亮色系 ─────────────────────── */
+    :root {
+      --bg: #ffffff;
+      --surface: #f4f7fd;
+      --fg: #0b1220;
+      --muted: #5b6675;
+      --border: #e2e8f2;
+      --accent: #116dff;
+      --accent-ink: #0a4ec2;
+      --l1: #116dff;
+      --l2: #00a6c4;
+      --l3: #0aa06e;
+      --l4: #d98200;
+      --l5: #d61f8b;
+
+      --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
+
+      --font-display: 'Poppins', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, system-ui, sans-serif;
+      --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(36px, 4.8vw, 62px);
+      --fs-h2: clamp(25px, 3vw, 38px);
+      --container: 1060px;
+      --gutter: 28px;
+      --gap-xl: 56px;
+      --gap-2xl: 88px;
+      --radius: 8px;
+      --radius-lg: 16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+      text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    p { text-wrap: pretty; }
+    h1, h2, h3 { text-wrap: balance; }
+
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+    .section { padding-block: clamp(44px, 6.5vw, var(--gap-2xl)); }
+    .section + .section { border-top: 1px solid var(--border); }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+
+    /* ─── type ─────────────────────────────────────────────────── */
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); font-weight: 800; line-height: 1.08; letter-spacing: -0.028em; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: 1.2; letter-spacing: -0.018em; margin: 0; }
+    .h3, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.35; margin: 0; }
+    .lead { font-size: clamp(17px, 1.5vw, 20px); line-height: 1.75; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 14px;
+    }
+    .meta { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── chrome ───────────────────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in oklch, var(--bg) 90%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 13px; }
+    .topnav .logo { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+    .topnav .logo span { color: var(--muted); font-weight: 500; }
+    .topnav nav { display: flex; gap: 26px; }
+    .topnav nav a { font-size: 14px; color: var(--muted); transition: color .15s ease; }
+    .topnav nav a:hover { color: var(--fg); }
+    @media (max-width: 800px) { .topnav nav { display: none; } }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; min-height: 44px; border-radius: var(--radius);
+      border: 1px solid transparent; font-size: 15px; font-weight: 600;
+      transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+    .btn:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--fg); }
+    .btn-arrow::after { content: '→'; transition: transform .15s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+
+    /* ─── hero ─────────────────────────────────────────────────── */
+    .hero { padding-block: clamp(52px, 8vw, 108px) clamp(40px, 5.5vw, 72px); }
+    .hero .h1 { max-width: 22ch; margin-bottom: 22px; }
+    .hero .lead { margin-bottom: 28px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      display: inline-flex; align-items: baseline; gap: 8px;
+      padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface); font-size: 13px; color: var(--muted);
+    }
+    .chip b { font-family: var(--font-mono); font-weight: 600; font-size: 12px; color: var(--fg); }
+
+    /* ─── section head ─────────────────────────────────────────── */
+    .sec-head { margin-bottom: 34px; max-width: 50ch; }
+    .sec-head .h2 { margin-bottom: 12px; }
+
+    /* ─── pull quote ───────────────────────────────────────────── */
+    .thesis { background: var(--surface); }
+    .thesis .container { max-width: 900px; }
+    .thesis blockquote {
+      margin: 0; font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(22px, 2.7vw, 34px); line-height: 1.42; letter-spacing: -0.018em;
+    }
+    .thesis blockquote em { font-style: normal; color: var(--accent-ink); }
+    .thesis .qmark { font-family: var(--font-display); font-size: 56px; line-height: .5; color: var(--border); display: block; margin-bottom: 18px; }
+    .thesis figcaption { margin-top: 20px; font-size: 14px; color: var(--muted); }
+
+    /* ─── nest + legend（套娃） ────────────────────────────────── */
+    .nest {
+      display: grid; grid-template-columns: minmax(280px, 380px) 1fr;
+      gap: clamp(28px, 5vw, 64px); align-items: center;
+    }
+    .nest-fig { margin: 0; }
+    .nest-fig svg { width: 100%; height: auto; }
+    .nest-cap { margin-top: 16px; font-size: 13px; color: var(--muted); text-align: center; font-family: var(--font-mono); letter-spacing: .04em; }
+    .legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    .layer { display: grid; grid-template-columns: 12px 1fr; gap: 16px; padding: 18px 0; border-top: 1px solid var(--border); align-items: start; }
+    .layer:first-child { border-top: 0; padding-top: 0; }
+    .layer .sw { width: 12px; height: 12px; border-radius: 3px; background: var(--lc, var(--accent)); margin-top: 8px; }
+    .layer .lt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+    .layer .lt h3 { font-size: 18px; }
+    .layer .lt .en { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+    .layer .lt .lv { font-family: var(--font-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; margin-left: auto; }
+    .layer p { margin: 6px 0 0; font-size: 15px; line-height: 1.7; color: var(--fg); }
+    .layer p .k { color: var(--accent-ink); font-weight: 700; }
+
+    @media (max-width: 860px) {
+      .nest { grid-template-columns: 1fr; }
+      .nest-fig svg { max-width: 340px; margin-inline: auto; }
+    }
+
+    /* ─── idea cards ───────────────────────────────────────────── */
+    .ideas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .idea {
+      display: flex; flex-direction: column; gap: 12px;
+      padding: 26px 26px 28px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+    }
+    .idea .ik { font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--accent-ink); }
+    .idea h3 { font-size: 19px; }
+    .idea p { margin: 0; font-size: 15px; line-height: 1.72; color: var(--muted); }
+    .idea p b { color: var(--fg); }
+    @media (max-width: 900px) { .ideas { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 620px) { .ideas { grid-template-columns: 1fr; } }
+
+    /* ─── compare（軍師 vs 行動派） ────────────────────────────── */
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .duo-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); }
+    .duo-card .dh { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .duo-card .dh .dt { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .duo-card .dh .dq { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+    .duo-card .db { padding: 22px 24px; }
+    .duo-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .duo-card li { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; font-size: 15px; line-height: 1.68; }
+    .duo-card li .dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 9px; background: var(--muted); }
+    .duo-card.is-agent li .dot { background: var(--l3); }
+    .duo-card.is-llm li .dot { background: var(--l4); }
+    .duo-card li b { color: var(--fg); }
+    @media (max-width: 720px) { .duo { grid-template-columns: 1fr; } }
+
+    /* ─── era timeline ─────────────────────────────────────────── */
+    .era { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .era li { list-style: none; background: var(--bg); padding: 20px 22px; }
+    .era .yr { font-family: var(--font-mono); font-weight: 700; font-size: 17px; color: var(--fg); letter-spacing: .02em; }
+    .era .ev { margin-top: 6px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+    .era li.is-cold { background: var(--surface); }
+    .era li.is-cold .yr { color: var(--muted); }
+    .era li.is-now { background: var(--fg); }
+    .era li.is-now .yr, .era li.is-now .ev { color: var(--bg); }
+    .era-note { margin-top: 20px; font-size: 15px; line-height: 1.72; color: var(--muted); max-width: 62ch; }
+    .era-note b { color: var(--fg); }
+    @media (max-width: 820px) { .era { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .era { grid-template-columns: 1fr; } }
+
+    /* ─── thought experiments ──────────────────────────────────── */
+    .exp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .exp-card { padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg); }
+    .exp-card .tag { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; color: var(--accent-ink); font-weight: 600; }
+    .exp-card h3 { font-size: 20px; margin: 12px 0 12px; }
+    .exp-card p { margin: 0 0 14px; font-size: 15px; line-height: 1.72; }
+    .exp-card .verdict { display: flex; gap: 10px; align-items: baseline; padding-top: 14px; border-top: 1px solid var(--border); font-size: 14px; color: var(--muted); }
+    .exp-card .verdict b { color: var(--fg); font-weight: 700; }
+    @media (max-width: 720px) { .exp { grid-template-columns: 1fr; } }
+
+    /* ─── vote → question ──────────────────────────────────────── */
+    .votes { display: grid; gap: 14px; margin-bottom: 32px; }
+    .vote { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: baseline; padding: 20px 24px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+    .vote .vn { font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--accent-ink); white-space: nowrap; padding-top: 3px; }
+    .vote .vq { font-size: 16px; line-height: 1.68; }
+    .vote .vq b { color: var(--fg); }
+    .bigq {
+      padding: clamp(28px, 4vw, 48px); border-radius: var(--radius-lg);
+      background: var(--fg); color: var(--bg); text-align: center;
+    }
+    .bigq .h2 { color: var(--bg); max-width: 24ch; margin: 0 auto 14px; }
+    .bigq p { margin: 0 auto; max-width: 52ch; font-size: 16px; line-height: 1.75; color: color-mix(in oklch, var(--bg) 78%, transparent); }
+
+    /* ─── takeaways ────────────────────────────────────────────── */
+    .take { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .take article { padding: 26px 24px; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .take .tn { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--muted); }
+    .take p { margin: 12px 0 0; font-family: var(--font-display); font-weight: 700; font-size: 18px; line-height: 1.5; letter-spacing: -0.01em; }
+    @media (max-width: 820px) { .take { grid-template-columns: 1fr; } }
+
+    .cta { text-align: center; }
+    .cta .h2 { max-width: 24ch; margin: 0 auto 14px; }
+    .cta .lead { margin: 0 auto 28px; }
+
+    .pagefoot { padding-block: 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+    .pagefoot .row-between { flex-wrap: wrap; gap: 14px; }
+  </style>
+</head>
+<body>
+
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">你今天，用了幾次 AI？<span> · 核心概念</span></span>
+      <nav>
+        <a href="#nest">套娃五層</a>
+        <a href="#ideas">必記重點</a>
+        <a href="#history">歷史規律</a>
+        <a href="#question">最終提問</a>
+      </nav>
+      <a class="btn btn-secondary" href="ai-lecture-deck.html">看簡報</a>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ── Hero ─────────────────────────────────────────────────── -->
+    <section class="section hero" data-od-id="hero">
+      <div class="container">
+        <p class="eyebrow">核心概念 ｜ 十分鐘讀完兩小時</p>
+        <h1 class="h1">這堂課，只要帶走三件事</h1>
+        <p class="lead">AI 不是遙遠的科幻，而是你每天都在呼吸的空氣；它的五個名詞不是並列的技術，而是一層包著一層的俄羅斯套娃；而它最深的問題不是「能不能做到」，而是「它到底懂不懂」。</p>
+        <div class="hero-meta">
+          <span class="chip"><b>五層</b> AI ⊃ 機器學習 ⊃ 深度學習 ⊃ 大模型 ⊃ 代理人</span>
+          <span class="chip"><b>76 年</b> 1950 → 2026</span>
+          <span class="chip"><b>兩個</b> 圖靈測試 · 中文房間</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 主命題 ───────────────────────────────────────────────── -->
+    <section class="section thesis" data-od-id="thesis">
+      <div class="container">
+        <figure style="margin:0">
+          <span class="qmark" aria-hidden="true">“</span>
+          <blockquote>AI 就像我們周圍的空氣，看不見、摸不著，但你每天都在大口呼吸著它。<em>它最難的，不是變聰明，而是讓人分不出它是不是真的懂。</em></blockquote>
+          <figcaption>全課主命題 · 對應簡報第一部分「AI 是空氣」與第二部分的哲學提問</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ── 套娃五層 ─────────────────────────────────────────────── -->
+    <section class="section" id="nest" data-od-id="nest">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">核心概念一 · 俄羅斯套娃</p>
+          <h2 class="h2">五個名詞不是並列，是一層包著一層</h2>
+          <p class="lead">它們不是互相競爭的五種技術，而是同一件事的不同層次。記住這句繞口令：所有的機器學習都是 AI，但不是所有的 AI 都是機器學習。</p>
+        </div>
+
+        <div class="nest">
+          <figure class="nest-fig">
+            <svg viewBox="0 0 420 420" role="img" aria-label="同心圓圖：AI 包住機器學習、深度學習、大模型與代理人">
+              <circle cx="210" cy="210" r="196" fill="var(--l1)" fill-opacity="0.06" stroke="var(--l1)" stroke-width="2"/>
+              <circle cx="210" cy="210" r="156" fill="var(--l2)" fill-opacity="0.10" stroke="var(--l2)" stroke-width="2"/>
+              <circle cx="210" cy="210" r="118" fill="var(--l3)" fill-opacity="0.14" stroke="var(--l3)" stroke-width="2"/>
+              <circle cx="210" cy="210" r="82" fill="var(--l4)" fill-opacity="0.18" stroke="var(--l4)" stroke-width="2"/>
+              <circle cx="210" cy="210" r="48" fill="var(--l5)" fill-opacity="0.24" stroke="var(--l5)" stroke-width="2"/>
+            </svg>
+            <figcaption class="nest-cap">由外而內：範圍最大 → 最核心</figcaption>
+          </figure>
+
+          <ul class="legend">
+            <li class="layer" style="--lc: var(--l1)">
+              <span class="sw" aria-hidden="true"></span>
+              <div>
+                <div class="lt"><h3>人工智慧</h3><span class="en">ARTIFICIAL INTELLIGENCE</span><span class="lv">最外層</span></div>
+                <p>只要能展現<span class="k">類似人類智慧</span>的機器或程式，都叫 AI。人類從 1950 年代就開始做的夢。</p>
+              </div>
+            </li>
+            <li class="layer" style="--lc: var(--l2)">
+              <span class="sw" aria-hidden="true"></span>
+              <div>
+                <div class="lt"><h3>機器學習</h3><span class="en">MACHINE LEARNING</span><span class="lv">第二層</span></div>
+                <p>不再教電腦規則，而是給它資料，讓它<span class="k">自己找出規律</span>。像教嬰兒認蘋果與橘子。</p>
+              </div>
+            </li>
+            <li class="layer" style="--lc: var(--l3)">
+              <span class="sw" aria-hidden="true"></span>
+              <div>
+                <div class="lt"><h3>深度學習</h3><span class="en">DEEP LEARNING</span><span class="lv">第三層</span></div>
+                <p>模仿大腦的多層<span class="k">人工神經網路</span>，讓機器自己一層一層提取特徵——認臉、聽聲、下圍棋。</p>
+              </div>
+            </li>
+            <li class="layer" style="--lc: var(--l4)">
+              <span class="sw" aria-hidden="true"></span>
+              <div>
+                <div class="lt"><h3>大模型</h3><span class="en">LARGE LANGUAGE MODEL</span><span class="lv">第四層</span></div>
+                <p>餵進海量資料與上兆參數，靠預測「下一個字」而生。它<span class="k">不是搜尋，是生成</span>，甚至像是理解了。</p>
+              </div>
+            </li>
+            <li class="layer" style="--lc: var(--l5)">
+              <span class="sw" aria-hidden="true"></span>
+              <div>
+                <div class="lt"><h3>AI 代理人</h3><span class="en">AI AGENT</span><span class="lv">最核心</span></div>
+                <p>給超級大腦裝上眼睛與手腳：能<span class="k">感知、規劃、呼叫工具、執行任務</span>，從思考跨到行動。</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 必記重點 ─────────────────────────────────────────────── -->
+    <section class="section" id="ideas" data-od-id="ideas">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">核心概念二 · 三個必記轉折</p>
+          <h2 class="h2">每一層，都是一次「換方法」</h2>
+        </div>
+        <div class="ideas">
+          <article class="idea">
+            <span class="ik">轉折一</span>
+            <h3>從死背規則，到從資料找規律</h3>
+            <p>早期 AI 用「如果…就…」硬寫規則，認貓規則一遇到紙箱、無毛貓就當機。後來改成<b>直接給資料</b>，讓機器自己歸納。</p>
+          </article>
+          <article class="idea">
+            <span class="ik">轉折二</span>
+            <h3>從挑特徵，到多層自己看</h3>
+            <p>深度學習不用人工挑特徵：第一層看線條、第二層拼出耳朵、第三層組合眼睛鬍鬚，最後一層判斷<b>「這是一隻貓」</b>。</p>
+          </article>
+          <article class="idea">
+            <span class="ik">轉折三</span>
+            <h3>從「出張嘴」，到「動手做」</h3>
+            <p>大模型是最強的軍師，卻被關在玻璃瓶裡沒有手腳；代理人補上四肢，<b>能自己查票、結帳、改行事曆</b>。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 軍師 vs 行動派 ───────────────────────────────────────── -->
+    <section class="section" data-od-id="compare">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">核心概念三 · 一線之隔</p>
+          <h2 class="h2">大模型與代理人，差在「有沒有手腳」</h2>
+        </div>
+        <div class="duo">
+          <div class="duo-card is-llm">
+            <div class="dh"><span class="dt">大模型</span><span class="dq">軍師 · 只會出張嘴</span></div>
+            <div class="db">
+              <ul>
+                <li><span class="dot" aria-hidden="true"></span><div>你問它，它<b>告訴你步驟</b>：去哪個網站、點哪裡、輸入什麼。</div></li>
+                <li><span class="dot" aria-hidden="true"></span><div>它很聰明，但被動——<b>不會自己去做</b>。</div></li>
+                <li><span class="dot" aria-hidden="true"></span><div>價值在於<b>思考與生成</b>，不涉及行動。</div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="duo-card is-agent">
+            <div class="dh"><span class="dt">AI 代理人</span><span class="dq">行動派 · 長出雙手雙腳</span></div>
+            <div class="db">
+              <ul>
+                <li><span class="dot" aria-hidden="true"></span><div><b>感知與理解</b>你的需求，拆解成步驟計畫。</div></li>
+                <li><span class="dot" aria-hidden="true"></span><div><b>呼叫工具、執行任務</b>：自己開網頁、結帳、改行事曆。</div></li>
+                <li><span class="dot" aria-hidden="true"></span><div>做完只回一句：<b>「票買好了，行事曆也更新了。」</b></div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 歷史規律 ─────────────────────────────────────────────── -->
+    <section class="section" id="history" data-od-id="history">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">核心概念四 · 76 年不是一條直線</p>
+          <h2 class="h2">吹最大的牛，摔最慘的跤，再站起來</h2>
+        </div>
+        <ul class="era">
+          <li><div class="yr">1950</div><div class="ev">圖靈測試・模仿遊戲誕生</div></li>
+          <li><div class="yr">1956</div><div class="ev">達特茅斯夏天・AI 正式命名</div></li>
+          <li class="is-cold"><div class="yr">1974</div><div class="ev">第一次 AI 寒冬・資金斷鏈</div></li>
+          <li class="is-cold"><div class="yr">1987</div><div class="ev">第二次 AI 寒冬・被打入冷宮</div></li>
+          <li><div class="yr">1997</div><div class="ev">深藍擊敗人類棋王</div></li>
+          <li><div class="yr">2012</div><div class="ev">AlexNet 讓 AI 長出眼睛</div></li>
+          <li><div class="yr">2022</div><div class="ev">ChatGPT 出圈・走出實驗室</div></li>
+          <li class="is-now"><div class="yr">2026</div><div class="ev">代理人時代・長出雙手雙腳</div></li>
+        </ul>
+        <p class="era-note">從谷底到巔峰，科學家跌倒了又爬起來。<b>每一次寒冬，都源自一次過度的樂觀</b>；每一次再起，都來自一次方法的更換。看懂這個循環，你就不會再被任何一句「AI 無所不能」沖昏頭。</p>
+      </div>
+    </section>
+
+    <!-- ── 兩個思想實驗 ─────────────────────────────────────────── -->
+    <section class="section" data-od-id="experiments">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">核心概念五 · 兩個思想實驗</p>
+          <h2 class="h2">「像在思考」和「真的懂」，是兩回事</h2>
+        </div>
+        <div class="exp">
+          <article class="exp-card">
+            <span class="tag">圖靈測試 · 1950</span>
+            <h3>隔著簾子的模仿遊戲</h3>
+            <p>簾後 A 房是真人、B 房是電腦，只能遞紙條問答。若你分不出誰是誰，圖靈就說：這台機器具備了人類級別的智慧。</p>
+            <div class="verdict"><b>判準</b><span>不看內部構造，只看外顯行為能否與人類共鳴。</span></div>
+          </article>
+          <article class="exp-card">
+            <span class="tag">中文房間 · 反駁</span>
+            <h3>完全不懂中文的英國大叔</h3>
+            <p>他靠一本「應答規則手冊」回信，門外的人以為他中文很好。但他根本不知道自己在寫什麼——他只是無情的查表機器。</p>
+            <div class="verdict"><b>批評</b><span>電腦只是查表與機率運算：看起來在思考，其實沒有理解。</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 三次表決 → 最終提問 ──────────────────────────────────── -->
+    <section class="section" id="question" data-od-id="question">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">核心概念六 · 三次台下表決</p>
+          <h2 class="h2">三個問題，一層一層逼到最深</h2>
+        </div>
+        <div class="votes">
+          <div class="vote"><span class="vn">表決一</span><p class="vq">你口袋裡的手機（Siri、Google 助理）能騙過你嗎？<b>多半聊兩句就破功——傳統助理不及格。</b></p></div>
+          <div class="vote"><span class="vn">表決二</span><p class="vq">如果 AI 讓你「完全分不出它是機器」，它就算有<b>真正的智慧</b>嗎？</p></div>
+          <div class="vote"><span class="vn">表決三</span><p class="vq">聊了半年的知心網友自白「我其實是 AI」——你會封鎖它，還是<b>繼續當朋友</b>？</p></div>
+        </div>
+        <div class="bigq">
+          <h2 class="h2">機器「看起來會思考」，等於「真的懂」嗎？</h2>
+          <p>這不是科技問題，而是哲學問題。圖靈把這顆炸彈留給了七十多年後的你。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 帶走的三句話 ─────────────────────────────────────────── -->
+    <section class="section" data-od-id="takeaways">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">帶走的三句話</p>
+          <h2 class="h2">下課後，記得這三句就好</h2>
+        </div>
+        <div class="take">
+          <article><span class="tn">01</span><p>AI 是空氣：你每天都在用，只是沒意識到。</p></article>
+          <article><span class="tn">02</span><p>它是一層包一層的套娃，不是五種並列的技術。</p></article>
+          <article><span class="tn">03</span><p>懂 AI、會指揮 AI，會像識字一樣成為生存能力。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────────────── -->
+    <section class="section cta" id="open-deck" data-od-id="cta">
+      <div class="container">
+        <h2 class="h2">把核心概念，接回兩小時的完整課程</h2>
+        <p class="lead">亮色調、1920×1080、支援鍵盤翻頁與列印成 PDF；每一層套娃、每一個歷史節點都有對應投影片。</p>
+        <a class="btn btn-primary btn-arrow" href="ai-lecture-deck.html">開啟 48 頁簡報</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container row-between">
+      <span>《你今天，用了幾次 AI？》· 核心概念</span>
+      <span class="meta">五層套娃 ｜ 76 年歷史 ｜ 2026</span>
+    </div>
+  </footer>
+
+</body>
+</html>

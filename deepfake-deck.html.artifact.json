@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "deck",
+  "title": "deepfake-deck.html",
+  "entry": "deepfake-deck.html",
+  "renderer": "deck-html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-09-14T09:57:16.000Z",
+  "updatedAt": "2026-09-14T09:57:16.000Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>《從 LLM 到 Agentic AI：原理、框架與實戰》課程大綱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── tokens — bright lecture palette, bound to the deck ───────── */
+    :root {
+      --bg: #ffffff;
+      --surface: #f4f7fd;
+      --fg: #0b1220;
+      --muted: #5b6675;
+      --border: #e2e8f2;
+      --accent: #116dff;
+      --accent-ink: #0a4ec2;
+      --l1: #116dff;
+      --l2: #00a6c4;
+      --l3: #0aa06e;
+      --l4: #d98200;
+      --l5: #d61f8b;
+
+      --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
+      --fg-soft: color-mix(in oklch, var(--fg) 5%, transparent);
+
+      --font-display: 'Poppins', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, system-ui, sans-serif;
+      --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(38px, 5.2vw, 68px);
+      --fs-h2: clamp(26px, 3.2vw, 40px);
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: 88px;
+      --container: 1080px;
+      --gutter: 28px;
+      --radius: 8px;
+      --radius-lg: 16px;
+    }
+
+    /* ─── base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+
+    /* ─── layout ───────────────────────────────────────────────────── */
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+    .section { padding-block: clamp(44px, 7vw, var(--gap-2xl)); }
+    .section + .section { border-top: 1px solid var(--border); }
+    .stack { display: flex; flex-direction: column; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); }
+
+    /* ─── type ─────────────────────────────────────────────────────── */
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); font-weight: 800; line-height: 1.08; letter-spacing: -0.028em; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: 1.2; letter-spacing: -0.018em; margin: 0; }
+    .h3, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.35; margin: 0; }
+    .lead { font-size: clamp(17px, 1.5vw, 20px); line-height: 1.75; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 14px;
+    }
+    .meta { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── chrome ───────────────────────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in oklch, var(--bg) 90%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); padding-block: 13px; }
+    .topnav .logo { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+    .topnav .logo span { color: var(--muted); font-weight: 500; }
+    .topnav nav { display: flex; gap: 26px; }
+    .topnav nav a { font-size: 14px; color: var(--muted); transition: color .15s ease; }
+    .topnav nav a:hover { color: var(--fg); }
+    @media (max-width: 760px) { .topnav nav { display: none; } }
+
+    /* ─── buttons ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; min-height: 44px; border-radius: var(--radius);
+      border: 1px solid transparent; font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+      transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+    .btn:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--fg); }
+    .btn-arrow::after { content: '→'; transition: transform .15s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+
+    /* ─── hero ─────────────────────────────────────────────────────── */
+    .hero { padding-block: clamp(56px, 9vw, 118px) clamp(44px, 6vw, 78px); }
+    .hero .h1 { max-width: 22ch; margin-bottom: 22px; }
+    .hero .lead { margin-bottom: 30px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .chip {
+      display: inline-flex; align-items: baseline; gap: 8px;
+      padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface); font-size: 13px; color: var(--muted);
+    }
+    .chip b { font-family: var(--font-mono); font-weight: 600; font-size: 12px; letter-spacing: .04em; color: var(--fg); }
+
+    /* ─── section head ─────────────────────────────────────────────── */
+    .sec-head { margin-bottom: 34px; max-width: 46ch; }
+    .sec-head .h2 { margin-bottom: 12px; }
+
+    /* ─── goals ────────────────────────────────────────────────────── */
+    .goals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .goal {
+      display: grid; grid-template-columns: 40px 1fr; gap: 18px; align-items: start;
+      padding: 22px 24px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+    }
+    .goal .gk { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .06em; padding-top: 3px; }
+    .goal p { margin: 0; font-size: 16px; line-height: 1.7; }
+    .goal:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+    /* ─── table ────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 460px; }
+    .ds-table th, .ds-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    .ds-table th { color: var(--muted); font-weight: 600; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ds-table .num-col { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .ds-table .part-col { font-family: var(--font-mono); font-weight: 600; color: var(--muted); white-space: nowrap; }
+    .ds-table tbody tr:last-child td { border-bottom: 0; border-top: 2px solid var(--fg); font-weight: 700; }
+    .ds-table tr.brk td { background: color-mix(in oklch, var(--l4) 7%, white); }
+
+    /* ─── part ─────────────────────────────────────────────────────── */
+    .part-head {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: end;
+      padding-bottom: 22px; margin-bottom: 8px; border-bottom: 2px solid var(--border);
+    }
+    .part-head .pn {
+      font-family: var(--font-display); font-weight: 800; font-size: clamp(52px, 6vw, 74px);
+      line-height: 0.78; letter-spacing: -0.05em; color: var(--pc, var(--accent));
+    }
+    .part-head .h2 { margin-bottom: 6px; }
+    .part-head .eyebrow { color: var(--pc, var(--accent)); margin-bottom: 8px; }
+    .part-head .prange { font-family: var(--font-mono); font-size: 13px; color: var(--muted); letter-spacing: .06em; text-align: right; white-space: nowrap; padding-bottom: 6px; }
+
+    /* ─── outline rows ─────────────────────────────────────────────── */
+    .oi { padding: 30px 0; border-top: 1px solid var(--border); }
+    .oi:first-of-type { border-top: 0; padding-top: 26px; }
+    .oi-head { display: grid; grid-template-columns: 92px 1fr auto; gap: 20px; align-items: baseline; }
+    .oi-head .orange { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .05em; }
+    .oi-head h3 { font-size: 21px; }
+    .oi-head .otag { font-family: var(--font-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap; }
+
+    .oi-list { list-style: none; margin: 18px 0 0; padding: 0 0 0 112px; display: grid; gap: 11px; }
+    .oi-list li { display: grid; grid-template-columns: 46px 1fr; gap: 16px; align-items: start; font-size: 16px; line-height: 1.68; }
+    .pg {
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-top: 3px; padding: 2px 0; min-width: 42px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums;
+    }
+    .oi-list b { font-weight: 700; }
+    .sub-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+    .sub-list li { display: block; font-size: 15px; color: var(--muted); padding-left: 18px; position: relative; }
+    .sub-list li::before { content: '·'; position: absolute; left: 4px; color: var(--muted); font-weight: 700; }
+
+    .oi-note {
+      margin: 18px 0 0 112px; padding: 15px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      font-size: 15px; line-height: 1.7; color: var(--muted);
+    }
+    .oi-note b { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin-right: 8px; }
+
+    /* ─── notes / footer ───────────────────────────────────────────── */
+    .notes { display: grid; gap: 14px; }
+    .note-row { display: grid; grid-template-columns: 26px 1fr; gap: 16px; align-items: start; font-size: 15px; line-height: 1.75; color: var(--muted); }
+    .note-row .nd { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-top: 9px; margin-left: 9px; }
+    .note-row b { color: var(--fg); font-weight: 700; }
+
+    .cta { text-align: center; }
+    .cta .h2 { max-width: 22ch; margin: 0 auto 14px; }
+    .cta .lead { margin: 0 auto 28px; }
+
+    .pagefoot { padding-block: 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+    .pagefoot .row-between { flex-wrap: wrap; gap: 14px; }
+
+    /* ─── responsive ───────────────────────────────────────────────── */
+    @media (max-width: 920px) {
+      .goals { grid-template-columns: 1fr; }
+      .goal:last-child:nth-child(odd) { grid-column: auto; }
+      .part-head { grid-template-columns: auto 1fr; }
+      .part-head .prange { grid-column: 1 / -1; text-align: left; padding-bottom: 0; }
+      .oi-head { grid-template-columns: 1fr; gap: 10px; }
+      .oi-head .otag { justify-self: start; }
+      .oi-list { padding-left: 0; }
+      .oi-note { margin-left: 0; }
+    }
+    @media (max-width: 560px) {
+      .oi-list li { grid-template-columns: 1fr; gap: 6px; }
+      .pg { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">從 LLM 到 Agentic AI<span> · 課程大綱</span></span>
+      <nav>
+        <a href="#part-1">觀念</a>
+        <a href="#part-3">案例</a>
+        <a href="#part-5">實戰</a>
+        <a href="#notes">附註</a>
+      </nav>
+      <a class="btn btn-secondary" href="agentic-ai-deck.html">看簡報</a>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ── Hero ─────────────────────────────────────────────────── -->
+    <section class="section hero" data-od-id="hero">
+      <div class="container">
+        <p class="eyebrow">120 分鐘實戰課 · 七個 PART</p>
+        <h1 class="h1">《從 LLM 到 Agentic AI：原理、框架與實戰》課程大綱</h1>
+        <p class="lead">先看懂 AI 如何從「會說話」走到「會做事」，再看多代理協作的兩個真實案例——中國 Kimi 的 Agent Swarm 與日本 Sakana 的 Fugu 編排器，接著盤點業界的框架與工具，最後在 Mac 上親手用 OpenWorkers 生成 PPT、用 OpenHands Cloud 一句 Prompt 做出一個 App。</p>
+        <div class="hero-meta">
+          <span class="chip"><b>受眾</b> 大學生 · 職場初學者</span>
+          <span class="chip"><b>形式</b> 講述 ＋ OpenWorkers／OpenHands 現場操作</span>
+          <span class="chip"><b>時數</b> 120 分鐘</span>
+          <span class="chip"><b>簡報</b> agentic-ai-deck.html · 34 頁</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 課程目標 ─────────────────────────────────────────────── -->
+    <section class="section" data-od-id="objectives">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">課程目標</p>
+          <h2 class="h2">下課後，學員帶走這六件事</h2>
+        </div>
+        <div class="goals">
+          <div class="goal">
+            <span class="gk">01</span>
+            <p>用自己的話說出 LLM、RAG、AI Agent、Agentic AI 四層躍遷的差別。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">02</span>
+            <p>理解 Agentic AI 的五大核心架構，並說出「多代理協作」為何是關鍵。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">03</span>
+            <p>比較 Kimi Agent Swarm 與 Sakana Fugu 兩種多代理策略的差異與戰略意義。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">04</span>
+            <p>分辨框架層（Google ADK、LangGraph）與工具層（OpenHands、OpenWorkers）的定位。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">05</span>
+            <p>在 Mac 上實際操作 OpenWorkers，從素材到交付完成一份 PPT 檔案。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">06</span>
+            <p>在 OpenHands Cloud 用一句 Prompt 完成一個可運行的待辦事項 App。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 時間分配 ─────────────────────────────────────────────── -->
+    <section class="section" data-od-id="timeline-budget">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">時間分配 · 總計 120 分鐘</p>
+          <h2 class="h2">七段節奏，一堂課的配速表</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>段落</th>
+                <th>主題</th>
+                <th class="num-col">投影片</th>
+                <th class="num-col">建議時間</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="part-col">Part 1</td>
+                <td>開場與課程導覽</td>
+                <td class="num-col">01–03</td>
+                <td class="num-col">10 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 2</td>
+                <td>Agentic AI 與 LLM 的根本差異</td>
+                <td class="num-col">04–08</td>
+                <td class="num-col">15 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 3</td>
+                <td>Agent Swarm 多代理協作</td>
+                <td class="num-col">09–16</td>
+                <td class="num-col">20 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 4</td>
+                <td>從框架到工具</td>
+                <td class="num-col">17–21</td>
+                <td class="num-col">15 分</td>
+              </tr>
+              <tr class="brk">
+                <td class="part-col">BREAK</td>
+                <td>中場休息</td>
+                <td class="num-col">22</td>
+                <td class="num-col">15 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 5</td>
+                <td>Mac 實戰 Demo：OpenWorkers</td>
+                <td class="num-col">23–26</td>
+                <td class="num-col">20 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 6</td>
+                <td>OpenHands Cloud 教學</td>
+                <td class="num-col">27–31</td>
+                <td class="num-col">20 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 7</td>
+                <td>總結與 Q&amp;A</td>
+                <td class="num-col">32–34</td>
+                <td class="num-col">5 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">總計</td>
+                <td>七個 PART ＋ 中場休息</td>
+                <td class="num-col">34 頁</td>
+                <td class="num-col">120 分</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Part 1 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-1" data-od-id="part-1" style="--pc: var(--l1)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">壹</span>
+          <div>
+            <p class="eyebrow">Part 1 · 10 分鐘</p>
+            <h2 class="h2">開場與課程導覽</h2>
+          </div>
+          <span class="prange">投影片 01–03</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">01–02</span>
+            <h3>一、封面與今天要回答的四個問題</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">01</span><div><b>封面</b> — 標題《從 LLM 到 Agentic AI：原理、框架與實戰》，封面即列出七個 PART 與中場休息的各自分鐘數。</div></li>
+            <li>
+              <span class="pg">02</span>
+              <div>
+                <b>今天要回答的四個問題</b>
+                <ul class="sub-list">
+                  <li>問題一：Agentic AI 到底是什麼？跟熟悉的 LLM 有什麼本質區別？</li>
+                  <li>問題二：多個 Agent 協同會發生什麼？會看 Kimi 與 Sakana 兩個案例。</li>
+                  <li>問題三：業界有哪些框架與工具？ADK、LangGraph、OpenHands、OpenWorkers。</li>
+                  <li>問題四：怎麼真的動手做？在 Mac 生成 PPT、用一句 Prompt 做出 App。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">03</span>
+            <h3>二、開場數據</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">03</span><div><b>這已經不是實驗室裡的概念</b> — 引用 MIT 史隆管理學院與波士頓顧問集團 2025 年 11 月報告：<b>35%</b> 受訪企業已部署 AI 代理，另有 <b>44%</b> 計劃很快跟進。</div></li>
+          </ul>
+          <p class="oi-note"><b>教學提示</b>用這張圖給學員一張地圖：今天把主題拆成「原理 → 案例 → 框架 → 實戰」四段，兩小時走完一輪。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 2 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-2" data-od-id="part-2" style="--pc: var(--l2)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">貳</span>
+          <div>
+            <p class="eyebrow">Part 2 · 15 分鐘</p>
+            <h2 class="h2">Agentic AI 與 LLM 的根本差異</h2>
+          </div>
+          <span class="prange">投影片 04–08</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">04</span>
+            <h3>三、從會說話到會做事</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">04</span><div><b>從「會說話」到「會做事」</b> — 生成式 AI 產出的是「內容」；Agentic AI 是會在世界中採取行動的 AI，行動可以是物理的（機器人操作），也可以是數位的（幫你訂機票）。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">05–06</span>
+            <h3>四、四層智能躍遷</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">05</span><div><b>四層智能躍遷：像四級台階</b> — LAYER 1 LLM（會不會說）、LAYER 2 RAG（有沒有依據）、LAYER 3 AI Agent（能不能做事）、LAYER 4 Agentic AI（能不能協同）。</div></li>
+            <li><span class="pg">06</span><div><b>一句話記住</b> — LLM 是智能的<b>語言引擎</b>、RAG 是<b>知識底座</b>、AI Agent 是<b>任務執行單元</b>、Agentic AI 是<b>組織協同系統</b>；每一層都是疊加，無法跳過。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">07–08</span>
+            <h3>五、五大架構與關鍵比喻</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">07</span>
+              <div>
+                <b>Agentic AI 的五大核心技術架構</b>
+                <ul class="sub-list">
+                  <li>① LLM 當大腦、② 工具整合、③ 記憶機制、④ 規劃與反思、⑤ 多代理協作。</li>
+                  <li>前四項讓單一 Agent 變強，第五項「多代理協作」是這一輪最關鍵的發展，也是下一個 PART 的主角。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">08</span><div><b>聰明的秘書 vs 全權代理人</b> — 傳統生成式 AI 像秘書（你交代什麼做什麼）；Agentic AI 像全權代理人（一句「幫我計劃下個月去日本，預算兩萬元」，自己查機票、酒店、天氣與行程）。提醒：能力越強，<b>信任與監督機制</b>越重要（人在迴路）。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 3 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-3" data-od-id="part-3" style="--pc: var(--l3)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">參</span>
+          <div>
+            <p class="eyebrow">Part 3 · 20 分鐘</p>
+            <h2 class="h2">Agent Swarm 多代理協作</h2>
+          </div>
+          <span class="prange">投影片 09–16</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">09</span>
+            <h3>六、為什麼需要多代理</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">09</span><div><b>如果一個 Agent 不夠強，為什麼不訓練一個更強的？</b> — 複雜任務需要的專業知識遠超單一模型邊界；與其訓練「全能模型」，不如讓多個專責模型協同。核心思想：<b>智能不在節點，而在關係</b>。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">10–12</span>
+            <h3>七、中國案例：Kimi Agent Swarm</h3>
+            <span class="otag">3 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">10</span><div><b>月之暗面與 Kimi K3</b> — <span class="num">2.8 兆</span>參數、<span class="num">200 萬</span> token 上下文、<span class="num">896</span> 路由專家（每次激活 16 個）；真正的重點是 Agent Swarm 產品支援<b>最多 100 個並發子智能體</b>。</div></li>
+            <li><span class="pg">11</span><div><b>代理群怎麼運作？</b> — 動態生成最多 <span class="num">100</span> 個子代理、最多 <span class="num">1,500</span> 次工具呼叫、執行時間最多縮短 <b>4.5 倍</b>；整個代理群由模型自動建立與調度，無需事先定義角色。</div></li>
+            <li><span class="pg">12</span><div><b>不只是「向上擴展」，還要「向外擴展」</b> — 月之暗面的方向：更大的模型 ＋ 更多的 Agent；引用明斯基《心智社會》(1986)——智能存在於組件的<b>組織方式</b>之中。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">13–15</span>
+            <h3>八、日本案例：Sakana AI</h3>
+            <span class="otag">3 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">13</span><div><b>Sakana Fugu：AI 的「總指揮」</b> — 2023 年成立的日本獨角獸，由 Transformer 論文第五作者 Llion Jones 共同創辦；Fugu 是 2026 年 6 月的編排器模型，自己<b>不回答問題</b>，而是調用世界上各種模型。</div></li>
+            <li>
+              <span class="pg">14</span>
+              <div>
+                <b>Fugu 的四個基礎機制</b>
+                <ul class="sub-list">
+                  <li>① 識別問題類型、② 選擇 worker 模型、③ 拆解任務、④ 校驗與綜合。</li>
+                  <li>核心精神：不訓練更強的基座去解題，而是判斷「這道題該交給誰、怎麼拆、如何驗證」。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">15</span><div><b>性能表現與「AI 主權」</b> — Terminal Bench 峰值集中在 GPT-5.5、GPQA Diamond 圍繞 Gemini 展開；戰略上從 Anthropic 出口管制吸取教訓，底層模型池完全可替換。<b>編排能力本身正成為一種獨立的競爭力。</b></div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">16</span>
+            <h3>九、兩個案例對比</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">16</span><div><b>Kimi Agent Swarm vs Sakana Fugu</b> — 對比核心策略、Agent 數量、角色定義、戰略定位與獨特價值：Kimi 靠 100 個並發子代理縮短 4.5 倍時間；Fugu 靠編排器打破單一供應商依賴。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 4 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-4" data-od-id="part-4" style="--pc: var(--l4)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">肆</span>
+          <div>
+            <p class="eyebrow">Part 4 · 15 分鐘</p>
+            <h2 class="h2">從框架到工具</h2>
+          </div>
+          <span class="prange">投影片 17–21</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">17–18</span>
+            <h3>十、框架層：開發者如何構建 Agent</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">17</span>
+              <div>
+                <b>Google ADK（Agent Development Kit）</b> — 2025 年 4 月 Cloud NEXT 發布的開源框架。
+                <ul class="sub-list">
+                  <li>四大特色：Multi-Agent by Design、豐富模型生態（LiteLLM 整合）、豐富工具生態（含 MCP）、內建評估。</li>
+                  <li>Google 自家 Agentspace 與 Customer Engagement Suite 即採用此框架。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">18</span><div><b>LangGraph：把工作流畫成一張圖</b> — LangChain 團隊開發，用於<b>有狀態的、多參與者的</b> LLM 應用；四個概念：StateGraph、Node、Edge、Persistence（支援記憶、中斷恢復、人工參與）。實際用戶：LinkedIn、Uber、Klarna、GitLab。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">19</span>
+            <h3>十一、框架選擇的思考</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">19</span>
+              <div>
+                <b>兩種設計哲學</b>
+                <ul class="sub-list">
+                  <li>Google ADK：企業整合派，強調 GCP 整合、企業級部署與完整評估工具鏈。</li>
+                  <li>LangGraph：精細控制派，強調流程控制、狀態管理與中斷恢復能力。</li>
+                  <li>怎麼選取決於技術棧、部署環境與團隊熟悉度，沒有標準答案。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">20–21</span>
+            <h3>十二、工具層與層次關係</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">20</span><div><b>不用自己寫框架，直接拿來用</b> — OpenHands（原名 OpenDevin，GitHub Star 超過 7.4 萬；Cloud／CLI／Local GUI／Software Agent SDK）；OpenWorkers（吳恩達團隊開源；交付成品、本地優先＋任意模型、每個重要動作都有審批）。</div></li>
+            <li><span class="pg">21</span><div><b>四個層次，由上而下</b> — Agentic AI 應用層 → 框架層 → Agent 運行時層 → 模型層；界線正在模糊（OpenHands 同時提供 SDK 與 Cloud GUI）。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── BREAK ────────────────────────────────────────────────── -->
+    <section class="section" id="break" data-od-id="break" style="--pc: var(--l4)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">憩</span>
+          <div>
+            <p class="eyebrow">中場休息 · 15 分鐘</p>
+            <h2 class="h2">休息，是為了下半場的實戰</h2>
+          </div>
+          <span class="prange">投影片 22</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">22</span>
+            <h3>中場休息</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">22</span><div><b>休息 15 分鐘</b> — 上半場把原理與案例講完；下半場兩種實戰：先讓 Agent 幫你生出一份 PPT，再用一句 Prompt 做出一整個 App。</div></li>
+          </ul>
+          <p class="oi-note"><b>時間提示</b>休息前先預告下半場要動手做，提醒學員準備好 Mac 與 API Key。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 5 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-5" data-od-id="part-5" style="--pc: var(--l5)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">伍</span>
+          <div>
+            <p class="eyebrow">Part 5 · 20 分鐘 · 動手做</p>
+            <h2 class="h2">Mac 實戰 Demo：OpenWorkers</h2>
+          </div>
+          <span class="prange">投影片 23–26</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">23–24</span>
+            <h3>十三、環境準備與下達指令</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">23</span>
+              <div>
+                <b>環境準備</b>
+                <ul class="sub-list">
+                  <li>macOS 13+、至少 8GB RAM（建議 16GB）、Node.js v20+、一組 LLM API Key。</li>
+                  <li>從 GitHub 下載 macOS 安裝檔、拖入「應用程式」，首次啟動設定 API Key（教學建議 DeepSeek 或 Kimi，成本較低）。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">24</span><div><b>準備素材，然後下達指令</b> — 桌面 <span class="num">ProductLaunch</span> 資料夾含 product_features.md、market_data.csv、competitor_analysis.md；在對話框輸入一段要求產出 6 部分、<span class="num">.pptx</span> 格式、檔名 ProductLaunch_Presentation 的指令。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">25–26</span>
+            <h3>十四、觀察工作流程與設計哲學</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">25</span>
+              <div>
+                <b>Agent 自己拆解、自己交付</b> — 五步驟：規劃階段 → 讀取檔案 → 生成內容 → 創建簡報 → 檢查與交付。
+                <ul class="sub-list">
+                  <li>它給你的是成品：可直接打開、可分享的簡報檔案，而不是一段文字。</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <span class="pg">26</span>
+              <div>
+                <b>它提議，你拍板</b> — 內容不理想就直接說，OpenWorkers 會記住上下文修改對應頁面。三大設計哲學：
+                <ul class="sub-list">
+                  <li>本地優先：檔案處理都在你的 Mac 完成。</li>
+                  <li>審批門控：要執行重要操作時會停下來等你確認。</li>
+                  <li>連接器生態：可連接 HubSpot、GitHub、Slack 等 25 個以上服務。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+          <p class="oi-note"><b>操作提示</b>本段是第一個動手環節，學員可同步操作；網路不穩時可改用預先準備的成品檔。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 6 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-6" data-od-id="part-6" style="--pc: var(--l1)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">陸</span>
+          <div>
+            <p class="eyebrow">Part 6 · 20 分鐘 · 動手做</p>
+            <h2 class="h2">OpenHands Cloud 教學</h2>
+          </div>
+          <span class="prange">投影片 27–31</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">27–28</span>
+            <h3>十五、架構解析與快速上手</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">27</span>
+              <div>
+                <b>OpenHands 的架構解析</b>
+                <ul class="sub-list">
+                  <li>核心（LLM · Agent）、環境（Runtime · Sandbox）、服務（Server）、骨幹（EventStream）。</li>
+                  <li>它給 LLM 配備完整開發環境，是一個能驗證程式碼是否正確執行的閉環回饋系統。</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <span class="pg">28</span>
+              <div>
+                <b>三個步驟開始</b>
+                <ul class="sub-list">
+                  <li>註冊帳號：app.all-hands.dev，用 GitHub 或 GitLab 登入，新用戶有免費額度。</li>
+                  <li>設定模型：Settings → LLM；OpenHands 模型無關，支援 OpenAI／Anthropic／Google／LiteLLM。</li>
+                  <li>開始新任務：Launch from Scratch。初學者建議先選 Claude 或 GPT 系列。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">29–31</span>
+            <h3>十六、一句 Prompt 做出一個 App</h3>
+            <span class="otag">3 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">29</span><div><b>我們只給它這一段話</b> — Prompt 要求用 Python Flask 建待辦事項 Web App：新增／編輯／刪除、標記完成、SQLite、原生 HTML+CSS、README、測試，並啟動伺服器驗證。</div></li>
+            <li><span class="pg">30</span><div><b>從規劃到交付，六個階段</b> — 規劃 → 環境準備 → 程式碼編寫 → 測試與除錯（自我迭代）→ 啟動與驗證 → 交付。</div></li>
+            <li><span class="pg">31</span><div><b>這不只是生成程式碼，而是完成一整個開發任務</b> — 四大設計原則：Sandbox 隔離、EventStream 驅動、模型無關、原生沙盒化。</div></li>
+          </ul>
+          <p class="oi-note"><b>操作提示</b>本段是第二個動手環節，可讓學員直接複製 Prompt 現場跑一次。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── 總結 ─────────────────────────────────────────────────── -->
+    <section class="section" id="summary" data-od-id="summary" style="--pc: var(--accent)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">終</span>
+          <div>
+            <p class="eyebrow">Part 7 · 總結與 Q&amp;A · 5 分鐘</p>
+            <h2 class="h2">從原理、案例，到實戰</h2>
+          </div>
+          <span class="prange">投影片 32–34</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">32</span>
+            <h3>十七、四個層次的總結</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">32</span>
+              <div>
+                <b>我們從四個層次理解了這個轉變</b>
+                <ul class="sub-list">
+                  <li>概念層：四個階梯（LLM／RAG／AI Agent／Agentic AI）。</li>
+                  <li>案例層：Kimi 用 100 個並發子代理提升 4.5 倍效率；Sakana Fugu 用編排器調度多個專家模型。</li>
+                  <li>框架層：Google ADK 與 LangGraph，分別代表企業整合與精細控制。</li>
+                  <li>工具層：OpenWorkers 與 OpenHands，讓每個人都能實際使用 Agentic AI 的能力。</li>
+                </ul>
+                <b>一句話</b>：Agentic AI 代表 AI 從「輔助工具」進化為「生產力主體」的關鍵轉折。
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">33–34</span>
+            <h3>十八、三個 takeaway 與結語</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">33</span>
+              <div>
+                <b>帶走三句話</b>
+                <ul class="sub-list">
+                  <li>① 價值不在模型，而在系統。</li>
+                  <li>② 編排能力是獨立競爭力。</li>
+                  <li>③ 安全與信任是前提。</li>
+                </ul>
+                <b>下一步建議</b>：下載 OpenWorkers 跑真實任務、申請 OpenHands Cloud 免費額度、用一句 Prompt 做出小工具。
+              </div>
+            </li>
+            <li><span class="pg">34</span><div><b>結語</b> — 未來 AI 的競爭，未必只屬於擁有最強單體模型的公司，也可能屬於最擅長設計<b>關係</b>的公司——模型內部的關係、智能體之間的關係，以及 AI 系統與人類之間的關係。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── 附註 ─────────────────────────────────────────────────── -->
+    <section class="section" id="notes" data-od-id="notes">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">附註</p>
+          <h2 class="h2">講者備忘與這份大綱的範圍</h2>
+        </div>
+        <div class="notes">
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>操作備案</b>：Part 5 與 Part 6 為兩個實戰環節。網路不穩時，Part 5 可改用預先準備的截圖與成品檔，Part 6 可先錄好操作影片。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>環境提醒</b>：Part 5 需 macOS 與 LLM API Key，建議課前請學員完成安裝與 Key 設定；Part 6 只需瀏覽器，適合所有人同步操作。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>時間控制</b>：Part 1–4 可依聽眾反應適度壓縮，把時間留給 Part 5、Part 6 的現場演示與提問。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>資訊時效</b>：Kimi 與 Sakana 的規格、OpenHands／OpenWorkers 的功能更新頻繁，講座前一週請確認最新資訊。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p>本大綱對應簡報 <b>agentic-ai-deck.html</b>，共 <b>34 頁</b>、七個 PART、一個中場休息，總時長約 <b>120 分鐘</b>。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────────────── -->
+    <section class="section cta" id="open-deck" data-od-id="cta">
+      <div class="container">
+        <h2 class="h2">把這份大綱，換成能直接上台的 34 頁</h2>
+        <p class="lead">亮色調、1920×1080、支援鍵盤翻頁與列印成 PDF；從 LLM 原理到多代理協作與 OpenWorkers、OpenHands 實戰的完整路徑。</p>
+        <a class="btn btn-primary btn-arrow" href="agentic-ai-deck.html">開啟 34 頁簡報</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container row-between">
+      <span>《從 LLM 到 Agentic AI：原理、框架與實戰》· 120 分鐘實戰課</span>
+      <span class="meta">大綱 34 頁 ｜ 七個 PART ｜ 2026</span>
+    </div>
+  </footer>
+
+</body>
+</html>

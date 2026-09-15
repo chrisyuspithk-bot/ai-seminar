@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>《從 LLM 基礎概念到 LM Studio 與 Gemini》課程大綱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── tokens — bright lecture palette, bound to the deck ───────── */
+    :root {
+      --bg: #ffffff;
+      --surface: #f4f7fd;
+      --fg: #0b1220;
+      --muted: #5b6675;
+      --border: #e2e8f2;
+      --accent: #116dff;
+      --accent-ink: #0a4ec2;
+      --l1: #116dff;
+      --l2: #00a6c4;
+      --l3: #0aa06e;
+      --l4: #d98200;
+      --l5: #d61f8b;
+
+      --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
+      --fg-soft: color-mix(in oklch, var(--fg) 5%, transparent);
+
+      --font-display: 'Poppins', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, system-ui, sans-serif;
+      --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(38px, 5.2vw, 68px);
+      --fs-h2: clamp(26px, 3.2vw, 40px);
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: 88px;
+      --container: 1080px;
+      --gutter: 28px;
+      --radius: 8px;
+      --radius-lg: 16px;
+    }
+
+    /* ─── base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+
+    /* ─── layout ───────────────────────────────────────────────────── */
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+    .section { padding-block: clamp(44px, 7vw, var(--gap-2xl)); }
+    .section + .section { border-top: 1px solid var(--border); }
+    .stack { display: flex; flex-direction: column; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); }
+
+    /* ─── type ─────────────────────────────────────────────────────── */
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); font-weight: 800; line-height: 1.08; letter-spacing: -0.028em; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: 1.2; letter-spacing: -0.018em; margin: 0; }
+    .h3, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.35; margin: 0; }
+    .lead { font-size: clamp(17px, 1.5vw, 20px); line-height: 1.75; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 14px;
+    }
+    .meta { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── chrome ───────────────────────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in oklch, var(--bg) 90%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); padding-block: 13px; }
+    .topnav .logo { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+    .topnav .logo span { color: var(--muted); font-weight: 500; }
+    .topnav nav { display: flex; gap: 26px; }
+    .topnav nav a { font-size: 14px; color: var(--muted); transition: color .15s ease; }
+    .topnav nav a:hover { color: var(--fg); }
+    @media (max-width: 760px) { .topnav nav { display: none; } }
+
+    /* ─── buttons ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; min-height: 44px; border-radius: var(--radius);
+      border: 1px solid transparent; font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+      transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+    .btn:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--fg); }
+    .btn-arrow::after { content: '→'; transition: transform .15s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+
+    /* ─── hero ─────────────────────────────────────────────────────── */
+    .hero { padding-block: clamp(56px, 9vw, 118px) clamp(44px, 6vw, 78px); }
+    .hero .h1 { max-width: 22ch; margin-bottom: 22px; }
+    .hero .lead { margin-bottom: 30px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .chip {
+      display: inline-flex; align-items: baseline; gap: 8px;
+      padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface); font-size: 13px; color: var(--muted);
+    }
+    .chip b { font-family: var(--font-mono); font-weight: 600; font-size: 12px; letter-spacing: .04em; color: var(--fg); }
+
+    /* ─── section head ─────────────────────────────────────────────── */
+    .sec-head { margin-bottom: 34px; max-width: 46ch; }
+    .sec-head .h2 { margin-bottom: 12px; }
+
+    /* ─── goals ────────────────────────────────────────────────────── */
+    .goals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .goal {
+      display: grid; grid-template-columns: 40px 1fr; gap: 18px; align-items: start;
+      padding: 22px 24px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+    }
+    .goal .gk { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .06em; padding-top: 3px; }
+    .goal p { margin: 0; font-size: 16px; line-height: 1.7; }
+    .goal:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+    /* ─── table ────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 460px; }
+    .ds-table th, .ds-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    .ds-table th { color: var(--muted); font-weight: 600; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ds-table .num-col { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .ds-table .part-col { font-family: var(--font-mono); font-weight: 600; color: var(--muted); white-space: nowrap; }
+    .ds-table tbody tr:last-child td { border-bottom: 0; border-top: 2px solid var(--fg); font-weight: 700; }
+
+    /* ─── part ─────────────────────────────────────────────────────── */
+    .part-head {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: end;
+      padding-bottom: 22px; margin-bottom: 8px; border-bottom: 2px solid var(--border);
+    }
+    .part-head .pn {
+      font-family: var(--font-display); font-weight: 800; font-size: clamp(52px, 6vw, 74px);
+      line-height: 0.78; letter-spacing: -0.05em; color: var(--pc, var(--accent));
+    }
+    .part-head .h2 { margin-bottom: 6px; }
+    .part-head .eyebrow { color: var(--pc, var(--accent)); margin-bottom: 8px; }
+    .part-head .prange { font-family: var(--font-mono); font-size: 13px; color: var(--muted); letter-spacing: .06em; text-align: right; white-space: nowrap; padding-bottom: 6px; }
+
+    /* ─── outline rows ─────────────────────────────────────────────── */
+    .oi { padding: 30px 0; border-top: 1px solid var(--border); }
+    .oi:first-of-type { border-top: 0; padding-top: 26px; }
+    .oi-head { display: grid; grid-template-columns: 92px 1fr auto; gap: 20px; align-items: baseline; }
+    .oi-head .orange { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .05em; }
+    .oi-head h3 { font-size: 21px; }
+    .oi-head .otag { font-family: var(--font-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap; }
+
+    .oi-list { list-style: none; margin: 18px 0 0; padding: 0 0 0 112px; display: grid; gap: 11px; }
+    .oi-list li { display: grid; grid-template-columns: 46px 1fr; gap: 16px; align-items: start; font-size: 16px; line-height: 1.68; }
+    .pg {
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-top: 3px; padding: 2px 0; min-width: 42px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums;
+    }
+    .oi-list b { font-weight: 700; }
+    .sub-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+    .sub-list li { display: block; font-size: 15px; color: var(--muted); padding-left: 18px; position: relative; }
+    .sub-list li::before { content: '·'; position: absolute; left: 4px; color: var(--muted); font-weight: 700; }
+
+    .oi-note {
+      margin: 18px 0 0 112px; padding: 15px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      font-size: 15px; line-height: 1.7; color: var(--muted);
+    }
+    .oi-note b { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin-right: 8px; }
+
+    /* ─── notes / footer ───────────────────────────────────────────── */
+    .notes { display: grid; gap: 14px; }
+    .note-row { display: grid; grid-template-columns: 26px 1fr; gap: 16px; align-items: start; font-size: 15px; line-height: 1.75; color: var(--muted); }
+    .note-row .nd { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-top: 9px; margin-left: 9px; }
+    .note-row b { color: var(--fg); font-weight: 700; }
+
+    .cta { text-align: center; }
+    .cta .h2 { max-width: 22ch; margin: 0 auto 14px; }
+    .cta .lead { margin: 0 auto 28px; }
+
+    .pagefoot { padding-block: 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+    .pagefoot .row-between { flex-wrap: wrap; gap: 14px; }
+
+    /* ─── responsive ───────────────────────────────────────────────── */
+    @media (max-width: 920px) {
+      .goals { grid-template-columns: 1fr; }
+      .goal:last-child:nth-child(odd) { grid-column: auto; }
+      .part-head { grid-template-columns: auto 1fr; }
+      .part-head .prange { grid-column: 1 / -1; text-align: left; padding-bottom: 0; }
+      .oi-head { grid-template-columns: 1fr; gap: 10px; }
+      .oi-head .otag { justify-self: start; }
+      .oi-list { padding-left: 0; }
+      .oi-note { margin-left: 0; }
+    }
+    @media (max-width: 560px) {
+      .oi-list li { grid-template-columns: 1fr; gap: 6px; }
+      .pg { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">從 LLM 到 LM Studio 與 Gemini<span> · 課程大綱</span></span>
+      <nav>
+        <a href="#part-1">基礎</a>
+        <a href="#part-4">實戰</a>
+        <a href="#part-7">雲端與 Gemini</a>
+        <a href="#notes">附註</a>
+      </nav>
+      <a class="btn btn-secondary" href="ai-llm-lmstudio-deck.html">看簡報</a>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ── Hero ─────────────────────────────────────────────────── -->
+    <section class="section hero" data-od-id="hero">
+      <div class="container">
+        <p class="eyebrow">150 分鐘實戰課 · 八個 PART</p>
+        <h1 class="h1">《從 LLM 基礎概念到 LM Studio 與 Gemini》課程大綱</h1>
+        <p class="lead">從「LLM 是機率機器」的原理出發，一路走過開源模型、量化與 Hugging Face，親手在 LM Studio 跑起本地模型，再用 COSTAR、RAG、MCP 把它變成會做事的助手，最後收束在 Gemini 生態系與「什麼情境用什麼工具」的判斷力。</p>
+        <div class="hero-meta">
+          <span class="chip"><b>受眾</b> 大學生 · 職場初學者</span>
+          <span class="chip"><b>形式</b> 講述 ＋ LM Studio／Gemini 現場操作</span>
+          <span class="chip"><b>時數</b> 150 分鐘</span>
+          <span class="chip"><b>簡報</b> ai-llm-lmstudio-deck.html · 35 頁</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 課程目標 ─────────────────────────────────────────────── -->
+    <section class="section" data-od-id="objectives">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">課程目標</p>
+          <h2 class="h2">下課後，學員帶走這六件事</h2>
+        </div>
+        <div class="goals">
+          <div class="goal">
+            <span class="gk">01</span>
+            <p>用自己的話解釋 LLM 的運作原理：它做的是機率預測，不是查資料庫。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">02</span>
+            <p>分辨開源與閉源模型，以及文本／多模態／Embedding／Omni 四種模型類型的差異。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">03</span>
+            <p>理解量化（Q4_K_M）與 GGUF，並在 Hugging Face 找到可直接使用的本地模型。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">04</span>
+            <p>獨立完成 LM Studio 的安裝、下載模型、載入對話與進階設定。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">05</span>
+            <p>用 COSTAR 框架寫出有效 prompt，並理解 Token、上下文窗口、RAG 與幻覺。</p>
+          </div>
+          <div class="goal">
+            <span class="gk">06</span>
+            <p>理解 MCP 與工具調用，並能判斷什麼任務該用本地、什麼該上雲端 Gemini。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 時間分配 ─────────────────────────────────────────────── -->
+    <section class="section" data-od-id="timeline-budget">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">時間分配 · 總計 150 分鐘</p>
+          <h2 class="h2">八段節奏，一堂課的配速表</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>段落</th>
+                <th>主題</th>
+                <th class="num-col">投影片</th>
+                <th class="num-col">建議時間</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="part-col">Part 1</td>
+                <td>LLM 基礎概念</td>
+                <td class="num-col">01–04</td>
+                <td class="num-col">25 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 2</td>
+                <td>開源 vs 閉源、模型類型</td>
+                <td class="num-col">05–06</td>
+                <td class="num-col">15 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 3</td>
+                <td>量化與 Hugging Face</td>
+                <td class="num-col">07–08</td>
+                <td class="num-col">15 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 4</td>
+                <td>LM Studio 安裝與設定實操</td>
+                <td class="num-col">09–14</td>
+                <td class="num-col">30 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 5</td>
+                <td>Prompt 工程（COSTAR）與核心概念</td>
+                <td class="num-col">15–20</td>
+                <td class="num-col">20 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 6</td>
+                <td>MCP 與工具調用實戰</td>
+                <td class="num-col">21–24</td>
+                <td class="num-col">15 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 7</td>
+                <td>本地模型的極限與雲端的必要性</td>
+                <td class="num-col">25–26</td>
+                <td class="num-col">10 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">Part 8</td>
+                <td>Gemini 生態系增強教程</td>
+                <td class="num-col">27–33</td>
+                <td class="num-col">20 分</td>
+              </tr>
+              <tr>
+                <td class="part-col">總結</td>
+                <td>總結與結語</td>
+                <td class="num-col">34–35</td>
+                <td class="num-col">—</td>
+              </tr>
+              <tr>
+                <td class="part-col">總計</td>
+                <td>八個 PART</td>
+                <td class="num-col">35 頁</td>
+                <td class="num-col">150 分</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Part 1 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-1" data-od-id="part-1" style="--pc: var(--l1)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">壹</span>
+          <div>
+            <p class="eyebrow">Part 1 · 25 分鐘</p>
+            <h2 class="h2">LLM 基礎概念</h2>
+          </div>
+          <span class="prange">投影片 01–04</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">01–02</span>
+            <h3>一、開場與 LLM 的本質</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">01</span><div><b>封面</b> — 150 分鐘實戰課 · 八個 PART；標題《從 LLM 基礎概念到 LM Studio 與 Gemini》，封面即列出八個 PART 與各自分鐘數。</div></li>
+            <li><span class="pg">02</span><div><b>ChatGPT 到底在「做」什麼？</b> — 不是查資料，而是做<b>下一個詞的機率預測</b>：接收輸入（切成 token）→ 計算機率 → 逐個生成。金句：<b>LLM 是機率機器，不是知識庫。</b></div></li>
+          </ul>
+          <p class="oi-note"><b>教學提示</b>用「英文約 1 token ≈ 0.75 個單字、中文約 1 字 ≈ 1–2 token」讓學員對 token 有量感。</p>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">03–04</span>
+            <h3>二、架構與參數規模</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">03</span><div><b>Transformer 與自注意力機制</b> — Self-Attention 讓模型生成每個詞時回頭看整個序列，判斷哪些最相關；以「小明把蘋果給了小華，因為<b>他</b>很餓」示範代名詞判斷。</div></li>
+            <li><span class="pg">04</span><div><b>參數規模：4B、7B、70B</b> — B 代表 Billion（十億）。4B 輕量（8GB RAM 有機會跑）、7B 甜蜜點、70B 重裝旗艦（需高階 GPU）。實務結論：本地跑 <b>7B–13B</b> 已非常可行。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 2 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-2" data-od-id="part-2" style="--pc: var(--l2)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">貳</span>
+          <div>
+            <p class="eyebrow">Part 2 · 15 分鐘</p>
+            <h2 class="h2">開源 vs 閉源、模型類型解析</h2>
+          </div>
+          <span class="prange">投影片 05–06</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">05–06</span>
+            <h3>三、開源閉源與四種模型類型</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">05</span>
+              <div>
+                <b>開源 vs 閉源模型</b>
+                <ul class="sub-list">
+                  <li>閉源：只能透過 API 使用、看不見權重（GPT-4o、Claude）；性能最強、開箱即用，但資料上傳、付費、無法自訂。</li>
+                  <li>開源：可下載權重自己跑（Llama 4、DeepSeek V3、Qwen 3）；資料不出本地、免費、可微調，但硬體門檻與設定複雜度高。</li>
+                  <li>提醒：「開源」與「開放權重」技術上不同，業界講開源通常指後者。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">06</span><div><b>文本、多模態、Embedding、Omni</b> — 用「輸入 → 輸出」一次分清：文本（文字→文字）、多模態（文字＋圖片→文字）、Embedding（文字→向量，把語意變成座標）、Omni（任意模態→任意模態，如 Jina v5-omni）。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 3 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-3" data-od-id="part-3" style="--pc: var(--l3)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">參</span>
+          <div>
+            <p class="eyebrow">Part 3 · 15 分鐘</p>
+            <h2 class="h2">量化與 Hugging Face</h2>
+          </div>
+          <span class="prange">投影片 07–08</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">07–08</span>
+            <h3>四、量化與模型檔案格式</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">07</span>
+              <div>
+                <b>什麼是量化？</b> — 原始模型用 FP16 儲存，70 億參數光參數就要約 14 GB；量化把數字從 16 位元壓到 8／4 位元甚至更低，比喻為高解析照片轉存 JPEG。
+                <ul class="sub-list">
+                  <li>Q8：品質接近原始，檔案仍偏大。</li>
+                  <li>Q4_K_M：最推薦的平衡點，比 FP16 少用約 40% VRAM，品質損失不到 1%。</li>
+                  <li>Q2：極致壓縮，品質損失明顯。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">08</span><div><b>Hugging Face 與 GGUF</b> — HF 是 AI 界的 GitHub；<b>GGUF</b> 是 llama.cpp 生態系的本地推理格式。操作：搜尋「模型名稱 + GGUF」→ 在 Files 區塊找 <span class="num">.gguf</span> 檔 → 挑量化版本下載。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 4 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-4" data-od-id="part-4" style="--pc: var(--l4)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">肆</span>
+          <div>
+            <p class="eyebrow">Part 4 · 30 分鐘 · 動手做</p>
+            <h2 class="h2">LM Studio 安裝與設定實操</h2>
+          </div>
+          <span class="prange">投影片 09–14</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">09–10</span>
+            <h3>五、認識 LM Studio 與安裝</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">09</span><div><b>LM Studio 是什麼？</b> — 免費桌面應用程式，用圖形介面在本地跑 LLM、不必寫程式。四大優勢：圖形化操作、內建模型搜尋、完全離線、OpenAI 相容 API。</div></li>
+            <li>
+              <span class="pg">10</span>
+              <div>
+                <b>下載與安裝</b>
+                <ul class="sub-list">
+                  <li>STEP 1 前往官網 <span class="num">lmstudio.ai</span> 點 Download。</li>
+                  <li>STEP 2 依作業系統選版本（Windows／macOS／Linux）並安裝。</li>
+                  <li>STEP 3 首次啟動後從 Settings → General → Language 選「繁體中文」。</li>
+                  <li>注意：非英文語言包仍為測試版，部分介面可能顯示英文，不影響功能。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">11–12</span>
+            <h3>六、搜尋、下載、載入與對話</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">11</span>
+              <div>
+                <b>搜尋與下載模型（現場操作）</b> — 左側邊欄四個按鈕：Chat／Developer／My Models／Discover。
+                <ul class="sub-list">
+                  <li>Discover → 搜尋 <span class="num">Qwen2.5-7B-Instruct-GGUF</span> → 選可靠發布者（如 bartowski 或 Qwen 官方）→ 選 <b>Q4_K_M</b> → Download（約 4–5 GB）。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">12</span><div><b>載入模型與基礎對話</b> — 回 Chat → 選剛下載的模型並載入 → 試輸入「用繁體中文自我介紹一下。」</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">13–14</span>
+            <h3>七、進階設定與 Local API</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">13</span>
+              <div>
+                <b>GPU、上下文長度與 Temperature</b>
+                <ul class="sub-list">
+                  <li>GPU Offload：控制多少層跑在 GPU，預設 100%；低於 50% 速度大幅下降。</li>
+                  <li>Context Length：預設 4096 可調高；<b>上下文翻倍，VRAM 用量也翻倍</b>。</li>
+                  <li>Temperature：低溫 0.1–0.3 適合事實問答；高溫 0.7–1.0 適合創意寫作。</li>
+                  <li>n_parallel：LM Studio 0.4.0 新功能，同時處理多個推理請求，預設 4 個並行槽位。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">14</span><div><b>內建 OpenAI 相容 API</b> — Developer 頁點 Start Server，運行於 <span class="num">http://localhost:1234</span>；任何支援 OpenAI API 的程式庫都能連接（附 Python 範例）。意義：把 LM Studio 當成免費的本地 API。</div></li>
+          </ul>
+          <p class="oi-note"><b>操作提示</b>本段是第一個動手環節，學員可同步操作；網路不穩時可改用已下載的 GGUF 檔。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 5 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-5" data-od-id="part-5" style="--pc: var(--l5)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">伍</span>
+          <div>
+            <p class="eyebrow">Part 5 · 20 分鐘</p>
+            <h2 class="h2">Prompt 工程與核心概念</h2>
+          </div>
+          <span class="prange">投影片 15–20</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">15–16</span>
+            <h3>八、Prompt 的重要性與 COSTAR 框架</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">15</span><div><b>Prompt 是你跟模型溝通的唯一介面</b> — 同樣的模型、不同的 prompt，輸出品質差距很大。核心原則：<b>模型不知道你腦子裡在想什麼</b>，要把「理所當然」的背景資訊全寫進 prompt。</div></li>
+            <li><span class="pg">16</span><div><b>COSTAR：六個要素</b> — C 上下文（Context）、O 目標（Objective）、S 風格（Style）、T 語氣（Tone）、A 受眾（Audience）、R 回應格式（Response）。實戰建議：不必每次寫滿六項，但 <b>C 與 O 絕對必要</b>。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">17–18</span>
+            <h3>九、Token／上下文窗口與 RAG</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">17</span><div><b>Token 與上下文窗口</b> — Token 是模型處理文字的最小單位；上下文窗口含 prompt + 回應 + 所有歷史對話。超出窗口時最舊內容會被「擠出去」，這就是長對話中模型「忘記」前文的原因。</div></li>
+            <li><span class="pg">18</span><div><b>RAG 與 Embedding</b> — 五步：切塊 → 用 Embedding 轉向量 → 存向量資料庫 → 提問時找相似文檔塊 → 文檔塊＋問題一起餵給 LLM。Embedding 讓「語意相似度」變成可計算的向量距離。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">19–20</span>
+            <h3>十、幻覺與工具調用</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">19</span>
+              <div>
+                <b>幻覺：模型為什麼會「一本正經地胡說」</b>
+                <ul class="sub-list">
+                  <li>三大原因：訓練目標的錯位、訓練資料的污染、解碼策略的隨機性。</li>
+                  <li>四招降低：明確要求「不確定就說不知道」、使用 RAG、降低 Temperature、交叉驗證回答。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">20</span><div><b>讓模型從「說話」變成「做事」</b> — 工具調用（Tool Calling）讓模型在需要時呼叫外部函數（範例：查天氣 API）。下一站：MCP 解決「每個工具都要寫適配程式碼」的問題。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 6 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-6" data-od-id="part-6" style="--pc: var(--l2)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">陸</span>
+          <div>
+            <p class="eyebrow">Part 6 · 15 分鐘 · 實戰展示</p>
+            <h2 class="h2">MCP 與工具調用</h2>
+          </div>
+          <span class="prange">投影片 21–24</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">21–22</span>
+            <h3>十一、MCP 是什麼、怎麼設定</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">21</span>
+              <div>
+                <b>MCP 是什麼？</b> — Anthropic 於 2024 年提出的 Model Context Protocol，比喻為 <b>AI 的 USB-C 接口</b>。
+                <ul class="sub-list">
+                  <li>三個角色：Host（你的 LLM 應用）、Client（MCP SDK，管理連接）、Server（提供工具的服務，stdio 或 HTTP）。</li>
+                  <li>與 Function Calling 互補而非替代：前者解決「單模型怎麼調用自己的 API」，MCP 解決「如何標準化工具接口，讓多個 Agent 共享多個工具」。</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <span class="pg">22</span>
+              <div>
+                <b>在 LM Studio 中設定 MCP</b>
+                <ul class="sub-list">
+                  <li>方法一：切換右側 Program 分頁 → Install &gt; Edit mcp.json。</li>
+                  <li>方法二：直接編輯 <span class="num">~/.lmstudio/mcp.json</span>（macOS）或 <span class="num">%USERPROFILE%\.lmstudio\mcp.json</span>（Windows）。</li>
+                  <li>附基本 mcp.json 範例；儲存後重新啟動或點 Reload MCP servers。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">23–24</span>
+            <h3>十二、實戰 Demo 與 Web Search</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">23</span>
+              <div>
+                <b>實戰：讓模型使用工具</b> — 載入支援工具調用的模型（如 Qwen 系列）＋ filesystem MCP server，問「幫我讀取桌面上的 test.txt」。
+                <ul class="sub-list">
+                  <li>四步流程：判斷意圖 → 生成工具調用請求 → MCP Client 執行工具並回傳 → 模型生成最終回答。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">24</span><div><b>Web Search MCP</b> — 設定 web search server 後可問即時資訊（如「今天台北的天氣如何？」）。這解決 LLM 的根本限制：<b>訓練資料有截止日期</b>。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 7 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-7" data-od-id="part-7" style="--pc: var(--l4)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">柒</span>
+          <div>
+            <p class="eyebrow">Part 7 · 10 分鐘</p>
+            <h2 class="h2">本地模型的極限與雲端的必要性</h2>
+          </div>
+          <span class="prange">投影片 25–26</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">25–26</span>
+            <h3>十三、三個硬限制與混合策略</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">25</span>
+              <div>
+                <b>本地模型的三個硬限制</b>
+                <ul class="sub-list">
+                  <li>① 上下文窗口的物理天花板：1K 擴到 65K，抽取任務效能下降 13%；KV Cache 隨上下文線性成長，21GB 模型實佔可能暴增到 25–30GB，VRAM 溢出即崩潰。</li>
+                  <li>② 運算能力的本質差距：RTX 4090 的 24GB vs 雲端 H100 80GB 與 TPU 叢集；本地推論落後 1.4–7.4 倍。</li>
+                  <li>③ 模型「智商」的壓縮代價：本地模型幾乎都量化過，frontier 模型參數量是數十倍且未壓縮。</li>
+                </ul>
+                <b>一句話</b>：本地是「夠用」，雲端是「好用」。
+              </div>
+            </li>
+            <li>
+              <span class="pg">26</span>
+              <div>
+                <b>雲端的必要性與混合策略</b>
+                <ul class="sub-list">
+                  <li>本地守備範圍：隱私／機密資料、離線工作、預算有限、實驗性專案。</li>
+                  <li>雲端守備範圍：複雜推理、長文件分析、需最新知識、生產環境關鍵工作。</li>
+                  <li>雲端優勢（100 萬 token、模型永遠最新、按用量付費）與代價（資料離開裝置、網路延遲、長期成本累積）；最務實的是混合架構。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Part 8 ───────────────────────────────────────────────── -->
+    <section class="section" id="part-8" data-od-id="part-8" style="--pc: var(--l1)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">捌</span>
+          <div>
+            <p class="eyebrow">Part 8 · 20 分鐘 · 動手做</p>
+            <h2 class="h2">Gemini 生態系增強教程</h2>
+          </div>
+          <span class="prange">投影片 27–33</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">27–29</span>
+            <h3>十四、Gemini 是什麼、方案與 Gems</h3>
+            <span class="otag">3 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">27</span><div><b>Gemini 是什麼？不只是聊天機器人</b> — 它是一個生態系：模型家族含快捷、思考型與最強的 Pro 模型；並深度嵌入 Gmail、Docs、Sheets、Slides、Drive、Meet、Calendar。<b>AI 就在你的工作流裡面。</b></div></li>
+            <li>
+              <span class="pg">28</span>
+              <div>
+                <b>Gemini 方案比較與選擇建議</b>
+                <ul class="sub-list">
+                  <li>免費版 NT$0／15GB：日常查詢、輕度使用。</li>
+                  <li>Google AI Plus NT$260／月·200GB：想試付費功能、預算有限。</li>
+                  <li>Google AI Pro NT$650／月·2TB：學生、研究員、深度使用者。</li>
+                  <li>Google AI Ultra NT$8,150／月·30TB：企業級應用、極致效能需求。</li>
+                  <li>付費版核心差異：上下文從免費版 32,000 token 躍升到 <b>100 萬 token</b>；思考型模型每日額度 300–1,500 個提示詞。</li>
+                </ul>
+              </div>
+            </li>
+            <li><span class="pg">29</span><div><b>Gems：你的專屬 AI 專家</b> — 可建立預先設定指令與知識庫的 Gemini 分身。步驟：<span class="num">gemini.google.com</span> → Gems → 新增 → 命名 → 寫指令 →（可選）上傳文件 → 儲存。指令範例：財報分析助手。</div></li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">30–31</span>
+            <h3>十五、Gems × Drive 與 Workspace 整合</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">30</span>
+              <div>
+                <b>Gems × Google Drive：零程式碼的 RAG</b> — 步驟：<span class="num">drive.google.com</span> → 右上 Ask Gemini → 側邊欄選 Gems → 選你的 Gem → 直接提問，它會從 Drive 檔案檢索回答。
+                <ul class="sub-list">
+                  <li>應用場景：合約審閱、專案週報、論文助手。本質是<b>個人化的 RAG 系統，且零程式碼</b>。</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <span class="pg">31</span>
+              <div>
+                <b>Gemini 在 Workspace 中的深度整合</b>
+                <ul class="sub-list">
+                  <li>Google Docs：「Help me create」從相關 Drive 文件抓內容產出初稿；「Match writing style」統一多人協作文風。</li>
+                  <li>Google Sheets：一句話描述要管理的專案，自動建立多工作表試算表。</li>
+                  <li>Google Drive：跨檔案問答（例：上月與客戶 A 的往來郵件是否提到預算調整）。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">32–33</span>
+            <h3>十六、Gemini Live 與決策框架</h3>
+            <span class="otag">2 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">32</span><div><b>Gemini Live 與語音互動</b> — 即時語音對話，可用語音指令操作 Gmail（搜尋、摘要、加星標、歸檔、刪除）；「每日簡報」用語音總結重要郵件、行事曆與待辦。目前主要提供給 Google AI Pro 與 Ultra。</div></li>
+            <li>
+              <span class="pg">33</span>
+              <div>
+                <b>什麼時候用本地，什麼時候用 Gemini</b>
+                <ul class="sub-list">
+                  <li>選本地（LM Studio）：敏感／機密資料、離線工作、預算有限、簡單生成與摘要翻譯。</li>
+                  <li>選雲端（Gemini）：超長文件（100 萬 token 等級）、需與 Gmail／Drive／Docs 深度整合、需最新模型能力、複雜推理與多步驟任務。</li>
+                  <li>混合策略：日常隱私任務給 LM Studio，需要強大推理與生態系整合的任務給 Gemini。</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+          <p class="oi-note"><b>操作提示</b>本段是第二個動手環節，可讓學員現場建立第一個 Gem 並用 Drive 檔案測試。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── 總結 ─────────────────────────────────────────────────── -->
+    <section class="section" id="summary" data-od-id="summary" style="--pc: var(--accent)">
+      <div class="container">
+        <div class="part-head">
+          <span class="pn">終</span>
+          <div>
+            <p class="eyebrow">總結</p>
+            <h2 class="h2">從原理、實戰，到生態系</h2>
+          </div>
+          <span class="prange">投影片 34–35</span>
+        </div>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">34</span>
+            <h3>十七、八個帶得走的結論</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li>
+              <span class="pg">34</span>
+              <div>
+                <b>從原理、實戰，到生態系</b>
+                <ul class="sub-list">
+                  <li>① LLM 是機率預測機器，是所有行為的基礎。</li>
+                  <li>② 開源模型讓你在本地跑，LM Studio 是最低門檻。</li>
+                  <li>③ 量化是本地運行的關鍵，Q4_K_M 是最佳平衡點。</li>
+                  <li>④ COSTAR 框架讓 prompt 更有效。</li>
+                  <li>⑤ MCP 讓模型能使用工具，從說話升級到做事。</li>
+                  <li>⑥ 本地模型有硬限制：上下文、運算、壓縮代價。</li>
+                  <li>⑦ 雲端 AI 是必要的互補，Gemini 展現工作流整合。</li>
+                  <li>⑧ Gems + Drive 是零程式碼 RAG，今天就能用。</li>
+                </ul>
+                <b>下一步五件事</b>：跑一個 7B 模型、用 COSTAR 寫 prompt、創建自己的 Gem、在 Drive 用 Gem 分析文件、觀察工作流決定本地或雲端。
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="oi">
+          <div class="oi-head">
+            <span class="orange">35</span>
+            <h3>十八、結語</h3>
+            <span class="otag">1 頁</span>
+          </div>
+          <ul class="oi-list">
+            <li><span class="pg">35</span><div><b>結語</b> — 今天學到的不是「哪個工具比較好」，而是<b>「什麼情境用什麼工具」</b>。這種判斷力，比任何單一技術都更有價值。</div></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── 附註 ─────────────────────────────────────────────────── -->
+    <section class="section" id="notes" data-od-id="notes">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">附註</p>
+          <h2 class="h2">講者備忘與這份大綱的範圍</h2>
+        </div>
+        <div class="notes">
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>操作備案</b>：Part 4 與 Part 8 共兩個動手環節。網路不穩時，Part 4 提前下載好 GGUF 檔以「Load Custom Model」載入；Part 8 可改用預先準備的截圖。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>硬體提醒</b>：建議學員至少 16GB RAM 再跑 7B 模型，8GB RAM 只能跑 3B 以下；Gemini 為雲端服務、只需瀏覽器，這個對比本身就是很好的教學點。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>時間控制</b>：Part 1–3 可依聽眾反應適度壓縮，把時間留給 Part 4 實操與 Part 8 Gemini 演示。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p><b>版本提醒</b>：Gemini 功能更新頻繁，講座前一週請確認最新功能與方案資訊，尤其 Gems 與 Drive 整合的操作步驟。</p>
+          </div>
+          <div class="note-row">
+            <span class="nd"></span>
+            <p>本大綱對應簡報 <b>ai-llm-lmstudio-deck.html</b>，共 <b>35 頁</b>、八個 PART、總時長約 <b>150 分鐘</b>。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────────────── -->
+    <section class="section cta" id="open-deck" data-od-id="cta">
+      <div class="container">
+        <h2 class="h2">把這份大綱，換成能直接上台的 35 頁</h2>
+        <p class="lead">亮色調、1920×1080、支援鍵盤翻頁與列印成 PDF；從 LLM 原理到 LM Studio 與 Gemini 的完整實戰路徑。</p>
+        <a class="btn btn-primary btn-arrow" href="ai-llm-lmstudio-deck.html">開啟 35 頁簡報</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container row-between">
+      <span>《從 LLM 基礎概念到 LM Studio 與 Gemini》· 150 分鐘實戰課</span>
+      <span class="meta">大綱 35 頁 ｜ 八個 PART ｜ 2026</span>
+    </div>
+  </footer>
+
+</body>
+</html>

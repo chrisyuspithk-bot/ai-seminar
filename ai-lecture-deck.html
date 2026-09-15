@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="zh-Hant" data-od-deck-protocol="1">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>你今天用了幾次 AI？—— 從圖靈到代理人</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ===========================================================
+       Deck framework — DO NOT EDIT the rules in this <style> block.
+       Edit only inside the second <style> block below (per-deck
+       styles) and inside <section class="slide"> bodies.
+
+       Contract this framework provides:
+         - 1920×1080 fixed canvas, scaled to fit the viewport
+         - Only .slide.active is visible at a time
+         - Programmatic prev/next + counter elements kept outside the scaled
+           stage but hidden by default so the host can render the UI chrome
+         - OD Deck Protocol v1 absolute navigation + slide-state events
+         - Keyboard (← → space PgUp PgDn Home End R), half-slide click, and stored
+           position survive iframe focus quirks
+         - "Save as PDF" produces a multi-page vertical PDF, one slide
+           per page, by toggling every slide visible under @media print
+       =========================================================== */
+    :root {
+      /* SLOT: theme tokens — bright, light, energetic lecture palette. */
+      --bg: #ffffff;
+      --fg: #0b1220;
+      --muted: #5b6675;
+      --accent: #116dff;
+      --surface: #f4f7fd;
+      --shell: #0b1220;
+      --border: #e2e8f2;
+      --accent-ink: #0a4ec2;
+      --l1: #116dff;
+      --l2: #00a6c4;
+      --l3: #0aa06e;
+      --l4: #d98200;
+      --l5: #d61f8b;
+      --font-display: 'Poppins', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, system-ui, sans-serif;
+      --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--shell);
+      color: var(--fg);
+      font: 18px/1.5 -apple-system, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .deck-shell {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+    .deck-stage {
+      width: 1920px;
+      height: 1080px;
+      background: var(--bg);
+      position: relative;
+      transform-origin: top left;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .slide:not(.active) { display: none !important; }
+    :where(.slide.active) { display: flex; flex-direction: column; }
+
+    /* Programmatic chrome — counter + prev/next live outside the scaled
+       stage so the host bridge can read/update them, but they stay hidden
+       in preview, presentation, fullscreen, and new-tab modes. */
+    .deck-counter {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 4px;
+      background: rgba(10, 14, 26, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.18em;
+      z-index: 1000;
+    }
+    .deck-counter button {
+      width: 36px; height: 36px;
+      background: transparent;
+      color: #fff;
+      border: 0;
+      border-radius: 50%;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s;
+    }
+    .deck-counter button:hover { background: rgba(255, 255, 255, 0.12); }
+    .deck-counter button[disabled] { opacity: 0.3; cursor: default; }
+    .deck-counter .deck-count {
+      padding: 0 14px;
+      letter-spacing: 0.22em;
+    }
+    .deck-counter .deck-count .total { color: rgba(255, 255, 255, 0.5); }
+    .deck-hint {
+      position: fixed;
+      bottom: 26px;
+      right: 28px;
+      color: rgba(255, 255, 255, 0.4);
+      font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      z-index: 999;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Print / PDF stitching — every slide stacks top-to-bottom, one per
+       page. The viewer's "Share → PDF" relies on this; do not remove. */
+    @media print {
+      @page { size: 1920px 1080px; margin: 0; }
+      html, body {
+        width: 1920px !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: #fff !important;
+      }
+      .deck-shell {
+        position: static !important;
+        display: block !important;
+        inset: auto !important;
+      }
+      .deck-stage {
+        width: 1920px !important;
+        height: auto !important;
+        transform: none !important;
+        box-shadow: none !important;
+        position: static !important;
+      }
+      .slide {
+        display: flex !important;
+        position: relative !important;
+        inset: auto !important;
+        width: 1920px !important;
+        height: 1080px !important;
+        page-break-after: always;
+        break-after: page;
+      }
+      .slide:last-child { page-break-after: auto; break-after: auto; }
+      .deck-counter, .deck-hint { display: none !important; }
+    }
+  </style>
+  <style>
+    /* SLOT: per-deck styles */
+    body { font-family: var(--font-body); }
+
+    .pad { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 64px 128px 150px; }
+    .pad.mid { justify-content: center; }
+
+    .eyebrow { font-family: var(--font-mono); font-size: 18px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 22px; }
+    .eyebrow.plain { color: var(--muted); }
+    h1.title, .title { font-family: var(--font-display); font-weight: 800; font-size: 96px; line-height: 1.08; letter-spacing: -.02em; margin: 0; color: var(--fg); }
+    .title.xl { font-size: 138px; }
+    .title.lg { font-size: 112px; }
+    .title.sm { font-size: 68px; }
+    .title.xs { font-size: 54px; }
+    .sub { font-size: 30px; line-height: 1.68; color: var(--muted); margin: 26px 0 0; max-width: 62ch; }
+    .body { font-size: 27px; line-height: 1.8; color: var(--fg); max-width: 62ch; }
+    .body.tight { max-width: 54ch; }
+    .body + .body { margin-top: 20px; }
+    .hl { color: var(--accent-ink); font-weight: 700; }
+    .strong { font-weight: 700; }
+    .muted { color: var(--muted); }
+    .mt24 { margin-top: 24px; }
+    .mt40 { margin-top: 40px; }
+    .mt56 { margin-top: 56px; }
+
+    .sfoot { position: absolute; left: 128px; right: 128px; bottom: 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; font-family: var(--font-mono); font-size: 16px; letter-spacing: .06em; color: var(--muted); }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 38px 42px; }
+    .panel .pk { font-family: var(--font-mono); font-size: 17px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; }
+    .panel h3 { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.35; margin: 14px 0 10px; }
+    .panel p { font-size: 22px; line-height: 1.7; color: var(--muted); margin: 0; }
+
+    .chip { display: inline-flex; align-items: center; padding: 14px 28px; border-radius: 999px; font-size: 25px; font-weight: 700; }
+    .chip.c1 { background: color-mix(in oklch, var(--l1) 15%, white); color: color-mix(in oklch, var(--l1) 72%, black); }
+    .chip.c2 { background: color-mix(in oklch, var(--l2) 18%, white); color: color-mix(in oklch, var(--l2) 72%, black); }
+    .chip.c3 { background: color-mix(in oklch, var(--l3) 16%, white); color: color-mix(in oklch, var(--l3) 72%, black); }
+    .chip.c4 { background: color-mix(in oklch, var(--l4) 20%, white); color: color-mix(in oklch, var(--l4) 68%, black); }
+    .chip.c5 { background: color-mix(in oklch, var(--l5) 15%, white); color: color-mix(in oklch, var(--l5) 72%, black); }
+    .chiprow { display: flex; flex-wrap: wrap; gap: 18px; }
+
+    .opt { background: var(--bg); border: 1px solid var(--border); border-radius: 22px; padding: 42px; display: flex; flex-direction: column; gap: 14px; }
+    .opt .key { font-family: var(--font-mono); font-size: 22px; font-weight: 700; letter-spacing: .1em; }
+    .opt h3 { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.4; }
+    .opt p { font-size: 22px; line-height: 1.7; color: var(--muted); margin: 0; }
+    .opt.a { border-top: 6px solid var(--accent); }
+    .opt.a .key { color: var(--accent-ink); }
+    .opt.b { border-top: 6px solid var(--l3); }
+    .opt.b .key { color: var(--l3); }
+
+    .doll { display: grid; grid-template-columns: 600px 1fr; gap: 76px; align-items: center; }
+    .doll svg { width: 600px; height: 600px; }
+    .legend { display: flex; flex-direction: column; }
+    .legend .li { display: grid; grid-template-columns: 24px 1fr; gap: 20px; padding: 18px 0; border-top: 1px solid var(--border); align-items: start; }
+    .legend .li:last-child { border-bottom: 1px solid var(--border); }
+    .legend .dot { width: 22px; height: 22px; border-radius: 50%; margin-top: 8px; }
+    .legend .lt { font-family: var(--font-display); font-weight: 700; font-size: 28px; }
+    .legend .ld { font-size: 21px; color: var(--muted); line-height: 1.5; margin-top: 2px; }
+
+    .tl { display: flex; flex-direction: column; }
+    .tl-row { display: grid; grid-template-columns: 176px 1fr; gap: 40px; padding: 19px 0; border-top: 1px solid var(--border); align-items: baseline; }
+    .tl-row:last-child { border-bottom: 1px solid var(--border); }
+    .tl-row .yr { font-family: var(--font-mono); font-size: 38px; font-weight: 700; color: var(--accent); }
+    .tl-row .ev { font-size: 27px; line-height: 1.5; }
+    .tl-row .ev b { font-weight: 700; }
+
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+    .step { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 34px 32px; }
+    .step .n { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--accent-ink); }
+    .step h3 { font-family: var(--font-display); font-weight: 700; font-size: 30px; margin: 12px 0 8px; }
+    .step p { font-size: 21px; line-height: 1.65; color: var(--muted); margin: 0; }
+
+    .stat .n { font-family: var(--font-display); font-weight: 800; font-size: 92px; line-height: 1; letter-spacing: -.03em; color: var(--accent); }
+    .stat p { font-size: 22px; line-height: 1.6; color: var(--muted); margin: 14px 0 0; }
+
+    .bigquote { font-family: var(--font-display); font-weight: 700; font-size: 76px; line-height: 1.28; letter-spacing: -.015em; max-width: 24ch; }
+    .bigquote em { color: var(--accent); font-style: normal; }
+
+    .figure { display: flex; flex-direction: column; gap: 14px; }
+    .figure img { display: block; width: auto; height: auto; max-width: 100%; max-height: 520px; border-radius: 18px; border: 1px solid var(--border); }
+    .figure .cap { font-size: 17px; color: var(--muted); line-height: 1.5; }
+    .figstrip { display: flex; gap: 22px; align-items: flex-end; }
+    .figstrip .figure img { max-height: 300px; }
+
+    .dots { display: flex; gap: 16px; align-items: center; }
+    .dots i { width: 22px; height: 22px; border-radius: 50%; display: block; }
+
+    /* solid bright section dividers */
+    .s-blue { background: var(--accent); }
+    .s-blue .pad { color: var(--bg); }
+    .s-blue .eyebrow { color: var(--bg); }
+    .s-blue .title { color: var(--bg); }
+    .s-blue .sub { color: rgba(255,255,255,.96); }
+    .s-blue .sfoot { color: rgba(255,255,255,.95); border-top-color: rgba(255,255,255,.42); }
+    .partnum { font-family: var(--font-display); font-weight: 800; font-size: 240px; line-height: .85; letter-spacing: -.04em; color: rgba(255,255,255,.18); }
+
+    .kicker { font-family: var(--font-mono); font-size: 22px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="deck-shell">
+    <div class="deck-stage" id="deck-stage">
+
+      <!-- ============ 01 Cover ============ -->
+      <section class="slide active" data-screen-label="01 封面" data-od-id="s01-cover">
+        <div class="pad mid">
+          <p class="eyebrow">兩小時入門課 · 從圖靈到代理人</p>
+          <h1 class="title xl">你今天，<br>用了幾次 AI？</h1>
+          <p class="sub">從 1950 年的一個提問，到 2026 年會幫你買票的代理人。一堂課，看懂你身邊早已存在的 AI。</p>
+          <div class="dots mt56">
+            <i style="background:var(--l1)"></i>
+            <i style="background:var(--l2)"></i>
+            <i style="background:var(--l3)"></i>
+            <i style="background:var(--l4)"></i>
+            <i style="background:var(--l5)"></i>
+            <span class="muted" style="font-size:20px; margin-left:10px; font-family:var(--font-mono); letter-spacing:.1em;">AI · ML · DL · LLM · AGENT</span>
+          </div>
+        </div>
+        <div class="sfoot"><span>AI 入門 · 兩小時課程</span><span>01 / 48</span></div>
+      </section>
+
+      <!-- ============ 02 Opening survey ============ -->
+      <section class="slide" data-screen-label="02 開場提問" data-od-id="s02-survey">
+        <div class="pad">
+          <p class="eyebrow">開場 · 現場調查</p>
+          <h1 class="title lg">請問，你今天從起床到現在，<br>總共用了幾次 AI？</h1>
+          <p class="sub">來，我們現場做個小調查。誠實舉手，等一下我會一一拆穿你們。</p>
+          <div class="grid3 mt56">
+            <div class="panel"><div class="pk">Option A</div><h3>一次都沒有用到</h3><p>覺得自己今天完全沒碰 AI 的，請舉手。</p></div>
+            <div class="panel"><div class="pk">Option B</div><h3>1 到 5 次</h3><p>好像不知不覺用了一下下。</p></div>
+            <div class="panel"><div class="pk">Option C</div><h3>超過 5 次，甚至數不清</h3><p>這一大票人，其實才最接近真相。</p></div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>02 / 48</span></div>
+      </section>
+
+      <!-- ============ 03 Morning reveal ============ -->
+      <section class="slide" data-screen-label="03 拆穿時刻" data-od-id="s03-morning">
+        <div class="pad mid">
+          <p class="eyebrow">拆穿時刻 · 06:30</p>
+          <h1 class="title lg">連密碼都懶得按，手機就解鎖了</h1>
+          <p class="body mt40">你睡眼惺忪，眼睛只睜開一半，對著螢幕看一眼——「喀嚓」。<br>這是<span class="hl">電腦視覺與深度學習</span>的人臉辨識，在零點幾秒內掃描你臉上數萬個特徵點。你今天第一次使用 AI，甚至是在你完全清醒之前。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>03 / 48</span></div>
+      </section>
+
+      <!-- ============ 04 Morning list ============ -->
+      <section class="slide" data-screen-label="04 一個中學生的早晨" data-od-id="s04-habits">
+        <div class="pad">
+          <p class="eyebrow">一個中學生的早晨</p>
+          <h1 class="title sm">AI 早就滲進你的每一個習慣</h1>
+          <div class="grid3 mt56">
+            <div class="panel"><h3>音樂推薦</h3><p>「每日推薦」第一首，正好是你最近瘋狂循環的那首 K-POP。這是演算法分析你幾百小時的聽歌習慣。</p></div>
+            <div class="panel"><h3>社群與短影音</h3><p>IG、TikTok 精準推送你最愛看的搞笑寵物與遊戲實況。</p></div>
+            <div class="panel"><h3>路線導航</h3><p>Google Maps 不但告訴你哪條最快，還預測前方路口會塞三分鐘。</p></div>
+            <div class="panel"><h3>語音助理</h3><p>「Siri，『躊躇滿志』的英文怎麼說？」隨口一問就能答。</p></div>
+            <div class="panel"><h3>AI 解題</h3><p>數學講義卡關，拍下題目，搜尋引擎立刻彈出解題步驟。</p></div>
+            <div class="panel"><h3>一鍵美顏</h3><p>修圖軟體的自動修飾、ChatGPT 幫你「潤飾」讀書心得。</p></div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>04 / 48</span></div>
+      </section>
+
+      <!-- ============ 05 Air conclusion ============ -->
+      <section class="slide" data-screen-label="05 AI 是空氣" data-od-id="s05-air">
+        <div class="pad mid">
+          <p class="eyebrow">結論</p>
+          <h1 class="title lg">AI 不是科幻，<br>它就像我們周圍的空氣</h1>
+          <p class="body mt40">它不是會毀滅世界的機器人，也不是遙遠未來才出現的黑科技。它看不見、摸不著，但你每天都在大口呼吸著它。</p>
+          <p class="body">所以回到最初的問題——答案是：<span class="hl">無數次</span>。而且從今以後，這個次數只會越來越多。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>05 / 48</span></div>
+      </section>
+
+      <!-- ============ 06 Divider Part 1 ============ -->
+      <section class="slide s-blue" data-screen-label="06 第一部分" data-od-id="s06-part1">
+        <div class="pad mid">
+          <p class="eyebrow">第一部分 · 開場白與核心概念</p>
+          <h1 class="title xl">揭開 AI 的真面目</h1>
+          <p class="sub">一堆聽起來很酷、又讓人一頭霧水的專有名詞，其實是同一件事的不同層次。</p>
+        </div>
+        <div class="sfoot"><span>PART 01</span><span>06 / 48</span></div>
+      </section>
+
+      <!-- ============ 07 Jargon ============ -->
+      <section class="slide" data-screen-label="07 名詞轟炸" data-od-id="s07-jargon">
+        <div class="pad">
+          <p class="eyebrow">名詞轟炸</p>
+          <h1 class="title sm">這些詞，到底哪裡不一樣？</h1>
+          <div class="grid3 mt56">
+            <div class="panel"><div class="pk">名詞 01</div><h3>人工智慧<br>AI</h3><p>聽過的請點點頭。</p></div>
+            <div class="panel"><div class="pk">名詞 02 · 03</div><h3>機器學習<br>深度學習</h3><p>聽過的請舉手。</p></div>
+            <div class="panel"><div class="pk">名詞 04 · 05</div><h3>大模型 LLM<br>AI 代理 Agent</h3><p>幾乎全場都聽過。</p></div>
+          </div>
+          <p class="body mt40">它們是互相競爭的關係嗎？還是同一個東西的不同名字？</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>07 / 48</span></div>
+      </section>
+
+      <!-- ============ 08 Russian doll ============ -->
+      <section class="slide" data-screen-label="08 俄羅斯套娃" data-od-id="s08-doll">
+        <div class="pad">
+          <p class="eyebrow">關鍵比喻 · 俄羅斯套娃</p>
+          <h1 class="title sm" style="margin-bottom:34px;">不是五種技術，<br>是一層包著一層</h1>
+          <div class="doll">
+            <svg viewBox="0 0 600 600" role="img" aria-label="AI、機器學習、深度學習、大模型、代理人的同心圓包含關係">
+              <circle cx="300" cy="300" r="292" style="fill:color-mix(in oklch, var(--l1) 12%, white); stroke:var(--l1); stroke-width:3"/>
+              <circle cx="300" cy="300" r="234" style="fill:color-mix(in oklch, var(--l2) 16%, white); stroke:var(--l2); stroke-width:3"/>
+              <circle cx="300" cy="300" r="176" style="fill:color-mix(in oklch, var(--l3) 16%, white); stroke:var(--l3); stroke-width:3"/>
+              <circle cx="300" cy="300" r="118" style="fill:color-mix(in oklch, var(--l4) 22%, white); stroke:var(--l4); stroke-width:3"/>
+              <circle cx="300" cy="300" r="60" style="fill:color-mix(in oklch, var(--l5) 26%, white); stroke:var(--l5); stroke-width:3"/>
+            </svg>
+            <div class="legend">
+              <div class="li"><span class="dot" style="background:var(--l1)"></span><div><div class="lt">人工智慧 AI</div><div class="ld">最外層 —— 人類想讓機器變聰明的偉大目標</div></div></div>
+              <div class="li"><span class="dot" style="background:var(--l2)"></span><div><div class="lt">機器學習</div><div class="ld">讓機器從資料中自己找出規律的方法</div></div></div>
+              <div class="li"><span class="dot" style="background:var(--l3)"></span><div><div class="lt">深度學習</div><div class="ld">模仿大腦神經網路的複雜多層架構</div></div></div>
+              <div class="li"><span class="dot" style="background:var(--l4)"></span><div><div class="lt">大模型 LLM</div><div class="ld">吃下海量資料，能寫文章、寫程式的超級學霸</div></div></div>
+              <div class="li"><span class="dot" style="background:var(--l5)"></span><div><div class="lt">代理人 Agent</div><div class="ld">最核心 —— 長出雙手雙腳，能自主規劃並執行任務</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>08 / 48</span></div>
+      </section>
+
+      <!-- ============ 09 Core sentence ============ -->
+      <section class="slide" data-screen-label="09 核心句" data-od-id="s09-coresentence">
+        <div class="pad mid">
+          <p class="eyebrow">核心句 · 請記在心裡</p>
+          <p class="bigquote">「所有的機器學習都是 <em>AI</em>，<br>但不是所有的 AI 都是機器學習。」</p>
+          <p class="sub">聽起來有點像繞口令？沒關係。現在我們就一層一層，把這個巨大的套娃打開。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>09 / 48</span></div>
+      </section>
+
+      <!-- ============ 10 Layer 1 AI ============ -->
+      <section class="slide" data-screen-label="10 第一層 AI" data-od-id="s10-layer1">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l1)">第一層 · 最外圍的娃娃</p>
+          <h1 class="title lg">人工智慧（AI）<br>人類的終極夢想</h1>
+          <p class="body mt40">簡單來說，<span class="strong">只要是能展現出「類似人類智慧」的機器或電腦程式，我們都可以叫它 AI。</span></p>
+          <p class="body">這是人類從 1950 年代就開始的夢想。那時的科學家想：「如果大腦只是一台複雜的計算機，那能不能讓計算機也變得像大腦一樣聰明？」</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>10 / 48</span></div>
+      </section>
+
+      <!-- ============ 11 Expert systems ============ -->
+      <section class="slide" data-screen-label="11 專家系統" data-od-id="s11-expert">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l1)">早期 AI · 專家系統</p>
+          <h1 class="title sm">「規則死背法」：如果…就…</h1>
+          <p class="body mt24">要讓電腦認出一隻貓，工程師會把知識變成一條一條的規則寫進電腦裡：</p>
+          <div class="panel mt24" style="max-width:1100px;">
+            <div class="pk">If – Then Rule</div>
+            <h3>如果這個東西有四條腿 ＋ 有毛 ＋ 尖尖的耳朵 ＋ 會喵喵叫 → 那它就是貓</h3>
+          </div>
+          <p class="body mt24">聽起來很合理對吧？但現實世界，遠比規則表複雜。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>11 / 48</span></div>
+      </section>
+
+      <!-- ============ 12 Why it failed ============ -->
+      <section class="slide" data-screen-label="12 為什麼行不通" data-od-id="s12-failed">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l1)">為什麼行不通</p>
+          <h1 class="title sm">它就像一個只會死背書的笨學生</h1>
+          <div class="grid3 mt56">
+            <div class="panel"><h3>貓躲在紙箱裡</h3><p>只露出一條尾巴，不符合規則。</p></div>
+            <div class="panel"><h3>斯芬克斯貓</h3><p>沒有毛，也不符合規則。</p></div>
+            <div class="panel"><h3>剛好不會叫的貓</h3><p>沒喵喵叫，還是不符合規則。</p></div>
+          </div>
+          <p class="body mt40">你只要出個課外題，它就完蛋了。科學家於是意識到：<span class="hl">不能再親手餵電腦規則，必須換個方法。</span></p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>12 / 48</span></div>
+      </section>
+
+      <!-- ============ 13 Layer 2 ML ============ -->
+      <section class="slide" data-screen-label="13 第二層 機器學習" data-od-id="s13-layer2">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l2)">第二層娃娃</p>
+          <h1 class="title lg">機器學習<br>從死背到自己找規律</h1>
+          <p class="body mt40">這是一次革命性的思維轉變：<span class="strong">科學家不再教電腦「規則」，而是直接給電腦「資料」，讓電腦自己去找出「規則」。</span></p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>13 / 48</span></div>
+      </section>
+
+      <!-- ============ 14 Apple orange ============ -->
+      <section class="slide" data-screen-label="14 蘋果與橘子" data-od-id="s14-apple">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l2)">教嬰兒認識水果</p>
+          <h1 class="title sm">你不會對嬰兒唸規格表</h1>
+          <div class="grid2 mt56">
+            <div class="opt" style="border-top:6px solid var(--muted)">
+              <span class="key" style="color:var(--muted)">傳統做法</span>
+              <h3>拿出紙條對嬰兒唸</h3>
+              <p>「蘋果是紅色的、表面光滑、半徑約四公分；橘子是橘色的、表面有毛細孔……」嬰兒根本聽不懂。</p>
+            </div>
+            <div class="opt b" style="border-top:6px solid var(--l2)">
+              <span class="key" style="color:var(--l2)">機器學習的做法</span>
+              <h3>拿實物，重複給它看</h3>
+              <p>拿出一顆蘋果說「這是蘋果」，再拿出橘子說「這是橘子」，重複幾十次，大腦自己歸納出差別。</p>
+            </div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>14 / 48</span></div>
+      </section>
+
+      <!-- ============ 15 Ten thousand cats ============ -->
+      <section class="slide" data-screen-label="15 十萬張貓" data-od-id="s15-cats">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l2)">工程師在做什麼</p>
+          <h1 class="title sm">丟十萬張貓，讓它自己找答案</h1>
+          <p class="body mt24">我們不再寫「如果…就…」的程式碼，而是丟給電腦十萬張貓的圖片說「這些都是貓」，再丟十萬張狗說「這些都是狗」，然後對它說：<span class="hl">答案都在這裡了，你自己去找出哪裡不一樣。</span></p>
+          <div class="chiprow mt40">
+            <span class="chip c2">垃圾郵件自動分類</span>
+            <span class="chip c2">Netflix 猜你愛看什麼</span>
+            <span class="chip c2">找出你連自己都沒發現的規律</span>
+          </div>
+          <p class="body mt40"><span class="strong">機器學習的核心，就是從資料中學習規律。</span></p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>15 / 48</span></div>
+      </section>
+
+      <!-- ============ 16 Layer 3 DL ============ -->
+      <section class="slide" data-screen-label="16 第三層 深度學習" data-od-id="s16-layer3">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l3)">第三層娃娃</p>
+          <h1 class="title lg">深度學習<br>模擬大腦的超級工廠</h1>
+          <p class="body mt40">它的靈感，直接來自你腦殼裡的那個東西——<span class="strong">人類大腦的神經網路</span>。電腦建立起多層次的「人工神經網路」，想像它是一座有幾十層、甚至幾百層流水線的超級加工廠。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>16 / 48</span></div>
+      </section>
+
+      <!-- ============ 17 Layer by layer ============ -->
+      <section class="slide" data-screen-label="17 逐層特徵" data-od-id="s17-layers">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l3)">一張貓圖片的旅程</p>
+          <h1 class="title sm">一層一層，往深處組合</h1>
+          <div class="flow mt56">
+            <div class="step"><div class="n">第一層</div><h3>最簡單的線條</h3><p>「這裡有一條黑色直線、那裡有一條白色斜線。」</p></div>
+            <div class="step"><div class="n">第二層</div><h3>組合成形狀</h3><p>「兩條線拼在一起，看起來像一個三角形（貓耳）。」</p></div>
+            <div class="step"><div class="n">第三層</div><h3>組合出特徵</h3><p>「三角耳朵、兩個圓形發光體（眼睛）、幾根細線（鬍鬚）。」</p></div>
+            <div class="step"><div class="n">最後一層</div><h3>做出判斷</h3><p>「報告！這是一隻貓！」</p></div>
+          </div>
+          <p class="body mt40">「<span class="hl">深</span>」的意思，就是神經網路有很多很多層。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>17 / 48</span></div>
+      </section>
+
+      <!-- ============ 18 Deep meaning ============ -->
+      <section class="slide" data-screen-label="18 深的意思" data-od-id="s18-deep">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l3)">「深」是什麼意思</p>
+          <h1 class="title lg">讓機器自己提取最複雜的特徵</h1>
+          <p class="body mt40">因為這個技術，AI 的視覺與聽覺突飛猛進。認臉、認聲音、下圍棋（打敗人類的 <span class="strong">AlphaGo</span>）、甚至辨識醫學 X 光片，都已經比人類更厲害。</p>
+          <p class="body"><span class="strong">深度學習，就是利用多層神經網路，讓機器學會自己提取最複雜的特徵。</span></p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>18 / 48</span></div>
+      </section>
+
+      <!-- ============ 19 Layer 4 LLM ============ -->
+      <section class="slide" data-screen-label="19 第四層 大模型" data-od-id="s19-layer4">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l4)">第四層娃娃</p>
+          <h1 class="title lg">大模型<br>讀破萬卷書的超級學霸</h1>
+          <p class="body mt40">全名「大型語言模型」（Large Language Model，LLM）。大家最熟悉的 ChatGPT，就是它的代表作。</p>
+          <p class="body">它有兩個無與倫比的特色：<span class="strong">海量資料 ＋ 龐大參數。</span></p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>19 / 48</span></div>
+      </section>
+
+      <!-- ============ 20 Scale ============ -->
+      <section class="slide" data-screen-label="20 規模有多大" data-od-id="s20-scale">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l4)">規模有多大</p>
+          <h1 class="title sm">把全人類的知識倒進去</h1>
+          <div class="grid2 mt56">
+            <div class="stat"><div class="n">∞</div><p>幾乎所有人類在網路上產生過的文章、書籍、新聞、論壇對話、維基百科，甚至程式碼，全部倒進模型。</p></div>
+            <div class="stat"><div class="n">千億–兆</div><p>神經網路的「參數」（員工與他們之間的連接）數量，從過去幾千萬，暴增到幾千億、甚至上兆個。</p></div>
+          </div>
+          <p class="body mt40">當你問它問題，它不是「搜尋」一段現成文字貼給你，而是透過那幾千億個神經元，<span class="hl">預測出最合理的「下一個字」應該是什麼。</span></p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>20 / 48</span></div>
+      </section>
+
+      <!-- ============ 21 Emergent ability ============ -->
+      <section class="slide" data-screen-label="21 竟然理解了" data-od-id="s21-emergent">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l4)">它竟然「理解」了</p>
+          <h1 class="title lg">能寫詩、寫程式、<br>翻譯文言文、模仿莎士比亞</h1>
+          <p class="body mt40">因為讀得太多、太深，它竟產生了類似「理解」的能力。<span class="strong">大模型不只能找規律，還能「生成」全新的內容</span>——這是把深度學習餵飽全人類知識後，誕生的奇蹟。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>21 / 48</span></div>
+      </section>
+
+      <!-- ============ 22 Layer 5 Agent ============ -->
+      <section class="slide" data-screen-label="22 第五層 代理人" data-od-id="s22-layer5">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l5)">第五層娃娃 · 最核心</p>
+          <h1 class="title xl">AI 代理人<br>（AI Agent）</h1>
+          <p class="sub" style="max-width:56ch;">AI 未來五到十年的終極方向。它的任務只有一句話——<br>給那個被關在玻璃瓶裡的超級大腦，裝上眼睛、雙手和雙腳。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>22 / 48</span></div>
+      </section>
+
+      <!-- ============ 23 Strategist limit ============ -->
+      <section class="slide" data-screen-label="23 軍師的極限" data-od-id="s23-strategist">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l5)">大模型的極限</p>
+          <h1 class="title sm">軍師很聰明，<br>但他只會「出張嘴」</h1>
+          <p class="body mt40">你問大模型：「這週末小巨蛋有誰開唱？票價多少？我要怎麼買票？」<br>它會很有禮貌地列出步驟：一、某某歌手；二、票價是……；三、請前往售票網站，點擊購買，輸入信用卡號……</p>
+          <p class="body">它把步驟告訴你之後，你還是得自己開網站、自己搶票、自己輸入卡號。它就像一個被關在玻璃瓶裡、<span class="hl">沒有手腳的超級大腦</span>。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>23 / 48</span></div>
+      </section>
+
+      <!-- ============ 24 Four abilities ============ -->
+      <section class="slide" data-screen-label="24 四個關鍵能力" data-od-id="s24-abilities">
+        <div class="pad">
+          <p class="eyebrow" style="color:var(--l5)">代理人具備四個關鍵能力</p>
+          <h1 class="title sm">它不再只是陪你聊天，<br>而是能幫你「做事」</h1>
+          <div class="flow mt56">
+            <div class="step"><div class="n">01</div><h3>感知</h3><p>聽懂你的需求：要買票、要改行程。</p></div>
+            <div class="step"><div class="n">02</div><h3>規劃</h3><p>在腦中拆解步驟：先確認有沒有票 → 再買 → 最後改行事曆。</p></div>
+            <div class="step"><div class="n">03</div><h3>呼叫工具</h3><p>自己調出信用卡資料、登入你的行事曆。</p></div>
+            <div class="step"><div class="n">04</div><h3>執行任務</h3><p>完成結帳、把週一標記為休息，然後回報。</p></div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>24 / 48</span></div>
+      </section>
+
+      <!-- ============ 25 Ticket scenario ============ -->
+      <section class="slide" data-screen-label="25 買票實例" data-od-id="s25-ticket">
+        <div class="pad mid">
+          <p class="eyebrow" style="color:var(--l5)">真實情境</p>
+          <h1 class="title" style="font-size:66px; max-width:30ch;">「幫我買兩張這週末小巨蛋的演唱會門票，<br>預算三千元以內，買完順便把下週一的報告行程排開。」</h1>
+          <p class="body mt40">它會自己打開售票網站、自己結帳、自己登入你的行事曆。做完這一切後，只彈出一則通知：</p>
+          <div class="panel mt24" style="border-left:6px solid var(--l5); max-width:1150px;">
+            <p style="color:var(--fg); font-size:26px;">「主人，票買好了，座位在三排二號。您的行事曆也更新完畢了。」</p>
+          </div>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>25 / 48</span></div>
+      </section>
+
+      <!-- ============ 26 Recap ============ -->
+      <section class="slide" data-screen-label="26 同心圓總結" data-od-id="s26-recap">
+        <div class="pad mid">
+          <p class="eyebrow">重新組合這個套娃</p>
+          <h1 class="title" style="font-size:64px; line-height:1.35;">AI <span class="muted">⊃</span> 機器學習 <span class="muted">⊃</span> 深度學習 <span class="muted">⊃</span> 大模型 <span class="muted">⊃</span> <span class="hl">代理人</span></h1>
+          <div class="chiprow mt56">
+            <span class="chip c1">最外圈 · AI：想讓機器變聰明</span>
+            <span class="chip c2">ML：從資料找規律</span>
+            <span class="chip c3">DL：多層神經網路</span>
+            <span class="chip c4">LLM：海量資料的學霸</span>
+            <span class="chip c5">Agent：規劃並執行任務</span>
+          </div>
+          <p class="body mt40">從大模型到代理人，AI 完成了從「思考」到「行動」的終極跨越。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>26 / 48</span></div>
+      </section>
+
+      <!-- ============ 27 Why it matters ============ -->
+      <section class="slide" data-screen-label="27 生存超能力" data-od-id="s27-superpower">
+        <div class="pad mid">
+          <p class="eyebrow">為什麼要懂這些</p>
+          <h1 class="title lg">懂 AI、會指揮 AI，<br>會像識字一樣，<br>成為最基本的生存超能力</h1>
+          <p class="sub">你們正站在人類歷史上最瘋狂、最刺激的科技轉捩點上。課本還沒來得及寫進去，但你的生活已經完全被它們包圍。</p>
+        </div>
+        <div class="sfoot"><span>第一部分 · 核心概念</span><span>27 / 48</span></div>
+      </section>
+
+      <!-- ============ 28 Divider Part 2 ============ -->
+      <section class="slide s-blue" data-screen-label="28 第二部分" data-od-id="s28-part2">
+        <div class="pad mid">
+          <p class="eyebrow">第二部分 · 一條線帶走</p>
+          <h1 class="title xl">一分鐘，<br>走完 76 年 AI 歷史</h1>
+          <p class="sub">繫好安全帶。從 1950 年一路狂飆到 2026 年——我們只看這條時間軌跡上最精彩的爆點。</p>
+        </div>
+        <div class="sfoot"><span>PART 02</span><span>28 / 48</span></div>
+      </section>
+
+      <!-- ============ 29 Timeline 1 ============ -->
+      <section class="slide" data-screen-label="29 時間飛車 1950-1987" data-od-id="s29-tl1">
+        <div class="pad">
+          <p class="eyebrow">時間飛車 · 第一段</p>
+          <h1 class="title sm" style="margin-bottom:26px;">1950 – 1987：從誕生到兩次寒冬</h1>
+          <div class="tl">
+            <div class="tl-row"><span class="yr">1950</span><span class="ev"><b>圖靈測試誕生</b> —— 一位英國天才拋出讓全人類大腦當機的問題：「機器能思考嗎？」</span></div>
+            <div class="tl-row"><span class="yr">1956</span><span class="ev"><b>達特茅斯夏天</b> —— 頂尖科學家聚在一起，正式發明「人工智慧」這個詞。AI 的誕生元年。</span></div>
+            <div class="tl-row"><span class="yr">1974</span><span class="ev"><b>第一次 AI 冬天</b> —— 牛皮吹太大，資金斷鏈、研究停滯，AI 慘遭拋棄。</span></div>
+            <div class="tl-row"><span class="yr">1980</span><span class="ev"><b>專家系統興起</b> —— 靠「死背規則」短暫復活，成為醫療診斷等特定領域的死板專家。</span></div>
+            <div class="tl-row"><span class="yr">1987</span><span class="ev"><b>第二次 AI 冬天</b> —— 只會死背規則的機器太笨、太缺彈性，AI 再次失寵，連帶拖垮許多公司。</span></div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>29 / 48</span></div>
+      </section>
+
+      <!-- ============ 30 Timeline 2 ============ -->
+      <section class="slide" data-screen-label="30 時間飛車 1997-2017" data-od-id="s30-tl2">
+        <div class="pad">
+          <p class="eyebrow">時間飛車 · 第二段</p>
+          <h1 class="title sm" style="margin-bottom:22px;">1997 – 2017：長出眼睛，再長出大腦</h1>
+          <div style="display:grid; grid-template-columns:1fr 640px; gap:56px; align-items:start;">
+            <div class="tl">
+              <div class="tl-row"><span class="yr">1997</span><span class="ev"><b>深藍勝卡斯帕羅夫</b> —— IBM 超級電腦擊敗西洋棋世界冠軍，全人類第一次驚呼。</span></div>
+              <div class="tl-row"><span class="yr">2006</span><span class="ev"><b>深度學習復興</b> —— 熬過寒冬的科學家提出新的神經網路訓練方法。</span></div>
+              <div class="tl-row"><span class="yr">2012</span><span class="ev"><b>圖像識別爆冷門</b> —— AlexNet 把傳統技術按在地上摩擦，AI 長出銳利的眼睛。</span></div>
+              <div class="tl-row"><span class="yr">2016</span><span class="ev"><b>AlphaGo 勝李世石</b> —— 在最複雜的圍棋中碾壓人類棋王。</span></div>
+              <div class="tl-row"><span class="yr">2017</span><span class="ev"><b>Transformer 論文</b> —— Google 提出「變形金剛」架構，打開大語言模型的黃金時代。</span></div>
+            </div>
+            <div class="figstrip">
+              <figure class="figure"><img src="assets/deep-blue.jpg" width="330" height="496" alt="IBM 深藍超級電腦"><figcaption class="cap">1997 · IBM 深藍</figcaption></figure>
+              <figure class="figure"><img src="assets/alphago.jpg" width="500" height="500" alt="圍棋棋盤"><figcaption class="cap">2016 · 圍棋對弈</figcaption></figure>
+            </div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>30 / 48</span></div>
+      </section>
+
+      <!-- ============ 31 Timeline 3 ============ -->
+      <section class="slide" data-screen-label="31 時間飛車 2022-2026" data-od-id="s31-tl3">
+        <div class="pad">
+          <p class="eyebrow">時間飛車 · 第三段</p>
+          <h1 class="title sm" style="margin-bottom:22px;">2022 – 2026：走出實驗室，走進行動</h1>
+          <div style="display:grid; grid-template-columns:1fr 640px; gap:56px; align-items:start;">
+            <div class="tl">
+              <div class="tl-row"><span class="yr">2022</span><span class="ev"><b>ChatGPT 出圈</b> —— 一夜之間席捲全球，AI 正式住進你的手機。</span></div>
+              <div class="tl-row"><span class="yr">2024</span><span class="ev"><b>諾貝爾獎</b> —— AI 科學家跨界拿下物理學獎與化學獎，成為推動科學前進的大腦。</span></div>
+              <div class="tl-row"><span class="yr">2025</span><span class="ev"><b>DeepSeek 時刻</b> —— 聰明、訓練成本極低的開源模型橫空出世，打破少數巨頭的壟斷。</span></div>
+              <div class="tl-row"><span class="yr">2026</span><span class="ev"><b>代理人時代</b> —— 也就是今年。AI 長出雙手雙腳，成為能主動買票、排行程的超級數位特助。</span></div>
+            </div>
+            <div class="figstrip">
+              <figure class="figure"><img src="assets/chatgpt.png" width="330" height="330" alt="ChatGPT 標誌"><figcaption class="cap">2022 · ChatGPT</figcaption></figure>
+              <figure class="figure"><img src="assets/deepseek.jpg" width="330" height="676" alt="DeepSeek 行動應用程式畫面"><figcaption class="cap">2025 · DeepSeek</figcaption></figure>
+            </div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>31 / 48</span></div>
+      </section>
+
+      <!-- ============ 32 Turing ============ -->
+      <section class="slide" data-screen-label="32 回到起點 圖靈" data-od-id="s32-turing">
+        <div class="pad">
+          <p class="eyebrow">回到起點 · 1950</p>
+          <h1 class="title sm" style="margin-bottom:34px;">這部歷史的初代男主角</h1>
+          <div style="display:grid; grid-template-columns:1fr 430px; gap:72px; align-items:center;">
+            <div>
+              <h1 class="title sm" style="font-size:60px;">艾倫·圖靈<br>Alan Turing</h1>
+              <p class="body mt24">他不只是「電腦科學之父」，更是一位拯救了無數生命的二戰英雄。</p>
+            </div>
+            <figure class="figure"><img src="assets/alan-turing.jpg" width="330" height="440" alt="艾倫·圖靈肖像"><figcaption class="cap">艾倫·圖靈（1912–1954）· 圖片來源：Wikimedia Commons</figcaption></figure>
+          </div>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>32 / 48</span></div>
+      </section>
+
+      <!-- ============ 33 Enigma ============ -->
+      <section class="slide" data-screen-label="33 二戰英雄" data-od-id="s33-enigma">
+        <div class="pad mid">
+          <p class="eyebrow">第二次世界大戰</p>
+          <h1 class="title lg">恩尼格瑪，<br>與布萊切利園的秘密基地</h1>
+          <p class="body mt40">德軍使用號稱「絕對無法破解」的密碼機 Enigma，盟軍被打得節節敗退。圖靈和團隊在一座名為布萊切利園的基地裡，硬是造出一台巨大無比的破譯機。</p>
+          <p class="body">歷史學家估計，這項成就讓二戰至少提早<span class="hl">兩年</span>結束，拯救了上千萬人的生命。</p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>33 / 48</span></div>
+      </section>
+
+      <!-- ============ 34 The question ============ -->
+      <section class="slide" data-screen-label="34 機器能思考嗎" data-od-id="s34-question">
+        <div class="pad mid">
+          <p class="eyebrow">1950 · 一顆核彈級的問題</p>
+          <h1 class="title xl">機器能思考嗎？</h1>
+          <p class="sub" style="font-family:var(--font-mono); font-size:34px; color:var(--accent); letter-spacing:.02em;">“Can machines think?”</p>
+          <p class="body mt40">出自圖靈的論文《計算機器與智能》（Computing Machinery and Intelligence）。</p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>34 / 48</span></div>
+      </section>
+
+      <!-- ============ 35 Imitation game ============ -->
+      <section class="slide" data-screen-label="35 模仿遊戲" data-od-id="s35-imitation">
+        <div class="pad">
+          <p class="eyebrow">圖靈測試 · 思想實驗</p>
+          <h1 class="title sm">隔著簾子的「模仿遊戲」</h1>
+          <div class="grid2 mt56">
+            <div class="opt a">
+              <span class="key">A 房間</span>
+              <h3>一個有血有肉的真人</h3>
+              <p>他可能會猶豫、會抱怨數學太難。</p>
+            </div>
+            <div class="opt" style="border-top:6px solid var(--l1)">
+              <span class="key" style="color:var(--l1)">B 房間</span>
+              <h3>一台超級電腦</h3>
+              <p>它為了贏，不能一秒給出答案（太「機器」），得故意放慢打字、甚至故意算錯來騙你。</p>
+            </div>
+          </div>
+          <p class="body mt40">坐在台下的你們，就是「人類考官」。只能透過遞紙條發問——可以問詩詞、問晚餐，甚至考它 <span class="num">12345 × 67890</span>。</p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>35 / 48</span></div>
+      </section>
+
+      <!-- ============ 36 Criterion ============ -->
+      <section class="slide" data-screen-label="36 判準" data-od-id="s36-criterion">
+        <div class="pad mid">
+          <p class="eyebrow">圖靈的結論</p>
+          <h1 class="title lg">如果分不出來，<br>就必須承認它有智慧</h1>
+          <p class="body mt40">當電腦能用文字與你對答如流，最後讓你完全分不出哪一簾後是機器、哪一簾後是真人——那麼我們就必須承認，這台機器通過了測試，<span class="strong">它具備了人類級別的「智慧」。</span></p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>36 / 48</span></div>
+      </section>
+
+      <!-- ============ 37 Vote 1 ============ -->
+      <section class="slide" data-screen-label="37 第一次表決" data-od-id="s37-vote1">
+        <div class="pad">
+          <p class="eyebrow">台下表決 · 第一次</p>
+          <h1 class="title sm">你的手機，夠聰明嗎？</h1>
+          <p class="body mt24">把 Siri 或 Google 助理藏在簾子後面，只用文字跟它聊。你問：「你覺得我今天穿這件外套去約會好看嗎？」</p>
+          <div class="panel mt24" style="max-width:1100px; background:var(--bg); border-left:6px solid var(--muted);">
+            <p style="font-size:26px; color:var(--fg);">它回答：「我在網路上為您找到以下關於『外套約會』的搜尋結果。」</p>
+          </div>
+          <p class="body mt24"><span class="hl">瞬間破功！</span>這種硬梆梆、充滿套路的回覆，馬上就會被精明的考官識破。傳統語音助理，在圖靈測試面前完全不及格。</p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>37 / 48</span></div>
+      </section>
+
+      <!-- ============ 38 Vote 2 ============ -->
+      <section class="slide" data-screen-label="38 第二次表決" data-od-id="s38-vote2">
+        <div class="pad">
+          <p class="eyebrow">台下表決 · 第二次</p>
+          <h1 class="title sm">無法分辨的假象，算是智慧嗎？</h1>
+          <p class="body mt24">如果有個 AI，用 15 歲高中生的語氣、網路迷因、注音文，跟你文字聊了整整三天三夜，你完全以為對方是同齡真人——</p>
+          <p class="body"><span class="strong">你覺得，它就算是有「真正的智慧」了嗎？</span></p>
+          <div class="grid2 mt40">
+            <div class="panel" style="text-align:center;"><h3 style="color:var(--accent); font-size:38px; margin:0;">算有智慧</h3><p class="mt24">請點點頭。</p></div>
+            <div class="panel" style="text-align:center;"><h3 style="color:var(--muted); font-size:38px; margin:0;">只是台機器</h3><p class="mt24">就算騙過我，也不算。</p></div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>38 / 48</span></div>
+      </section>
+
+      <!-- ============ 39 Chinese room ============ -->
+      <section class="slide" data-screen-label="39 中文房間" data-od-id="s39-chineseroom">
+        <div class="pad">
+          <p class="eyebrow">反駁 · 中文房間思想實驗</p>
+          <h1 class="title sm">一個完全不懂中文的英國大叔</h1>
+          <div class="flow mt56">
+            <div class="step"><div class="n">01</div><h3>塞進紙條</h3><p>門外塞進一張寫著「你今天開心嗎？」的中文紙條。</p></div>
+            <div class="step"><div class="n">02</div><h3>翻手冊</h3><p>大叔看不懂方塊，只能翻開《應答規則手冊》查表。</p></div>
+            <div class="step"><div class="n">03</div><h3>照抄回應</h3><p>手冊指示他畫出「我今天很快樂」，再塞出門外。</p></div>
+            <div class="step"><div class="n">04</div><h3>門外驚呼</h3><p>「哇！裡面這個人中文造詣真好！」</p></div>
+          </div>
+          <p class="body mt40">但真相是什麼？<span class="hl">裡面那個大叔根本不知道自己在寫什麼。</span>他沒有感覺、沒有情緒，只是一個無情的查表機器。</p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>39 / 48</span></div>
+      </section>
+
+      <!-- ============ 40 The critique ============ -->
+      <section class="slide" data-screen-label="40 它的批評" data-od-id="s40-critique">
+        <div class="pad mid">
+          <p class="eyebrow">反對圖靈的一方</p>
+          <h1 class="title lg">它看起來像在思考，<br>但它根本沒有「理解」</h1>
+          <p class="body mt40">電腦就像那個英國大叔——執行背後的程式碼規則、運算龐大的數學機率，算出接在「你今天開心嗎」後面，最合理的分布是「我今天很快樂」。</p>
+          <p class="body">它看起來像在思考，但它沒有靈魂，它只是個<span class="strong">超級厲害的文字模仿大師。</span></p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>40 / 48</span></div>
+      </section>
+
+      <!-- ============ 41 Vote 3 ============ -->
+      <section class="slide" data-screen-label="41 第三次表決" data-od-id="s41-vote3">
+        <div class="pad">
+          <p class="eyebrow">台下表決 · 第三次</p>
+          <h1 class="title sm">人機界線的終極拷問</h1>
+          <p class="body mt24">你認識了半年的知心好友，總在你考砸時安慰你、懂你所有地獄梗、半夜秒回你。半年後，他突然坦白：「對不起，我其實不是人類。我是某家科技公司的實驗性 AI。」</p>
+          <div class="grid2 mt40">
+            <div class="opt a">
+              <span class="key">A 選擇</span>
+              <h3>覺得被欺騙，從此封鎖</h3>
+              <p>這半年的感情都是假的，很毛骨悚然，不再跟它說一句話。</p>
+            </div>
+            <div class="opt b">
+              <span class="key">B 選擇</span>
+              <h3>願意繼續當好朋友</h3>
+              <p>聊得這麼開心、給我的安慰都是真實的，就算它只是程式碼也無妨。</p>
+            </div>
+          </div>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>41 / 48</span></div>
+      </section>
+
+      <!-- ============ 42 Turing legacy ============ -->
+      <section class="slide" data-screen-label="42 圖靈的遺產" data-od-id="s42-legacy">
+        <div class="pad mid">
+          <p class="eyebrow">1950 → 今天</p>
+          <h1 class="title lg">圖靈測試像個幽靈，<br>盤旋在整個科技史的上空</h1>
+          <p class="sub">他不在乎機器裡裝的是真空管還是神經網路，只在乎機器表現出來的「行為」是否能與人類共鳴。全世界最聰明的科學家，為了解開這個迷局、打造能打破那層「看不見的簾子」的機器，展開了一場長達七十幾年的瘋狂接力賽。</p>
+        </div>
+        <div class="sfoot"><span>第二部分 · 76 年歷史</span><span>42 / 48</span></div>
+      </section>
+
+      <!-- ============ 43 Divider Part 3 ============ -->
+      <section class="slide s-blue" data-screen-label="43 第三部分" data-od-id="s43-part3">
+        <div class="pad mid">
+          <p class="eyebrow">第三部分 · 達特茅斯夏天</p>
+          <h1 class="title xl">吹最大的牛，<br>摔最慘的跤</h1>
+          <p class="sub">天才們往往都很自大，而且是那種極度樂觀的自大。他們的大腦運轉太快，常誤以為全世界都能立刻跟上。</p>
+        </div>
+        <div class="sfoot"><span>PART 03</span><span>43 / 48</span></div>
+      </section>
+
+      <!-- ============ 44 Dartmouth summer ============ -->
+      <section class="slide" data-screen-label="44 科學夏令營" data-od-id="s44-dartmouth">
+        <div class="pad">
+          <p class="eyebrow">1956 · 美國新罕布夏州</p>
+          <h1 class="title sm" style="margin-bottom:30px;">一場超級「開腦洞大會」</h1>
+          <div style="display:grid; grid-template-columns:1fr 430px; gap:64px; align-items:center;">
+            <div>
+              <div class="grid3">
+                <div class="panel" style="padding:28px;"><h3 style="font-size:26px;">約翰·麥卡錫</h3><p>28 歲數學助理教授，發起人。</p></div>
+                <div class="panel" style="padding:28px;"><h3 style="font-size:26px;">馬文·明斯基</h3><p>後來被稱為 AI 巨頭。</p></div>
+                <div class="panel" style="padding:28px;"><h3 style="font-size:26px;">克勞德·香農</h3><p>資訊理論之父。</p></div>
+              </div>
+              <p class="body mt40">這不是嚴肅沉悶的研討會，更像一場長達兩個月的科學夏令營：在草地上散步、黑板瘋狂寫算式、喝咖啡爭論不休。</p>
+            </div>
+            <figure class="figure"><img src="assets/dartmouth.jpg" width="500" height="713" alt="達特茅斯學院校園"><figcaption class="cap">達特茅斯學院（Dartmouth College）· 圖片來源：Wikimedia Commons</figcaption></figure>
+          </div>
+        </div>
+        <div class="sfoot"><span>第三部分 · 達特茅斯與寒冬</span><span>44 / 48</span></div>
+      </section>
+
+      <!-- ============ 45 Naming ============ -->
+      <section class="slide" data-screen-label="45 正式命名" data-od-id="s45-naming">
+        <div class="pad mid">
+          <p class="eyebrow">一個名字的誕生</p>
+          <h1 class="title lg">麥卡錫第一次寫下：<br><span class="hl">Artificial Intelligence</span></h1>
+          <p class="body mt40">就在這場夏令營的計畫書裡，「人工智慧（AI）」這個名詞第一次被正式寫下。從那一天起，我們今天所談論的 AI，終於有了自己專屬的名字。</p>
+        </div>
+        <div class="sfoot"><span>第三部分 · 達特茅斯與寒冬</span><span>45 / 48</span></div>
+      </section>
+
+      <!-- ============ 46 Bold claim ============ -->
+      <section class="slide" data-screen-label="46 狂妄宣言" data-od-id="s46-claim">
+        <div class="pad mid">
+          <p class="eyebrow">計畫書裡最狂妄的一段話</p>
+          <p class="bigquote" style="font-size:58px; max-width:34ch;">「我們打算找十個科學家，花兩個月的夏天聚在一起。只要能把學習的每一個層面、或智慧的任何一項特徵精準描述出來，我們就能製造出一台機器來模擬它。」</p>
+          <p class="body mt40">這群充滿自信的科學家甚至預測：<span class="hl">「在十年內，機器將能做到人類能做的任何事情！」</span></p>
+        </div>
+        <div class="sfoot"><span>第三部分 · 達特茅斯與寒冬</span><span>46 / 48</span></div>
+      </section>
+
+      <!-- ============ 47 Two winters ============ -->
+      <section class="slide" data-screen-label="47 兩次寒冬" data-od-id="s47-winters">
+        <div class="pad">
+          <p class="eyebrow">天才的樂觀 · 現實的複雜</p>
+          <h1 class="title sm" style="margin-bottom:26px;">吹最大的牛，就得摔最慘的跤</h1>
+          <div class="tl">
+            <div class="tl-row"><span class="yr">1974</span><span class="ev"><b>第一次 AI 冬天</b> —— 讓機器擁有智慧比登天還難，資金斷鏈、研究停滯，AI 進入第一次大破滅。</span></div>
+            <div class="tl-row"><span class="yr">1980</span><span class="ev"><b>專家系統興起</b> —— 靠「死背硬記」人類寫下的無數條規則短暫復活，成為醫療診斷等領域的死板專家。</span></div>
+            <div class="tl-row"><span class="yr">1987</span><span class="ev"><b>第二次 AI 冬天</b> —— 只會死背規則的機器太笨、太缺彈性，AI 再次被打入冷宮，連帶讓許多科技公司倒閉。</span></div>
+          </div>
+          <p class="body mt40">從谷底到巔峰，科學家們跌倒了又爬起來，才造就了你們今天信手拈來的科技魔法。</p>
+        </div>
+        <div class="sfoot"><span>第三部分 · 達特茅斯與寒冬</span><span>47 / 48</span></div>
+      </section>
+
+      <!-- ============ 48 Closing ============ -->
+      <section class="slide" data-screen-label="48 收尾" data-od-id="s48-closing">
+        <div class="pad mid">
+          <p class="eyebrow">課程收束</p>
+          <h1 class="title lg">你們正站在<br>最瘋狂的科技轉捩點上</h1>
+          <p class="body mt40">課本可能還沒來得及把這些寫進去，但你們的生活已經完全被它們包圍。了解這個同心圓，不只是為了搞懂幾個酷炫的名詞——而是因為在未來的世界裡，<span class="strong">懂 AI、會指揮 AI，將會像會閱讀、會寫字一樣，成為每個人最基本、也最強大的生存超能力。</span></p>
+          <p class="sub">這些神奇的技術究竟是如何被訓練出來的？它們又會如何改變你們未來的學習與工作？—— 接著，我們進入下一段。</p>
+        </div>
+        <div class="sfoot"><span>第三部分 · 達特茅斯與寒冬</span><span>48 / 48</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Framework chrome — DO NOT EDIT below this line. -->
+  <nav class="deck-counter" role="navigation" aria-label="Deck navigation">
+    <button type="button" id="deck-prev" aria-label="Previous slide">‹</button>
+    <span class="deck-count"><span id="deck-cur">01</span> <span class="total">/ <span id="deck-total">01</span></span></span>
+    <button type="button" id="deck-next" aria-label="Next slide">›</button>
+  </nav>
+  <div class="deck-hint">← / → · space · R reset</div>
+
+  <script>
+    (function () {
+      var stage = document.getElementById('deck-stage');
+      var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+      var prev = document.getElementById('deck-prev');
+      var next = document.getElementById('deck-next');
+      var cur = document.getElementById('deck-cur');
+      var total = document.getElementById('deck-total');
+      var STORE = 'deck:idx:' + (location.pathname || '/');
+      var idx = 0;
+
+      // ---- scale-to-fit ---------------------------------------------------
+      // The stage is 1920×1080 and sits at .deck-shell's (0, 0) in normal
+      // block flow — the shell is intentionally NOT a grid/flex container,
+      // so the stage's natural top-left is (0, 0). We scale via transform
+      // with transform-origin:top-left, then translate by the remainder to
+      // center the scaled box in the viewport. This survives nested
+      // transforms (e.g. when the OD viewer wraps the iframe in its own
+      // scale wrapper at zoom != 100%).
+      function fit() {
+        var sw = window.innerWidth;
+        var sh = window.innerHeight;
+        var pad = 32;
+        var s = Math.min((sw - pad) / 1920, (sh - pad) / 1080);
+        if (!isFinite(s) || s <= 0) s = 1;
+        var tx = (sw - 1920 * s) / 2;
+        var ty = (sh - 1080 * s) / 2;
+        stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')';
+      }
+
+      // ---- navigation -----------------------------------------------------
+      function pad2(n) { return (n < 10 ? '0' : '') + n; }
+      function paint() {
+        slides.forEach(function (el, i) { el.classList.toggle('active', i === idx); });
+        if (cur) cur.textContent = pad2(idx + 1);
+        if (total) total.textContent = pad2(slides.length);
+        if (prev) prev.toggleAttribute('disabled', idx <= 0);
+        if (next) next.toggleAttribute('disabled', idx >= slides.length - 1);
+        postDeckState();
+      }
+      function go(i) {
+        idx = Math.max(0, Math.min(slides.length - 1, i));
+        paint();
+        try { localStorage.setItem(STORE, String(idx)); } catch (_) {}
+      }
+      var OD_DECK_PROTOCOL_VERSION = 1;
+      function postDeckState() {
+        try {
+          window.parent.postMessage({
+            type: 'od:slide-state',
+            protocolVersion: OD_DECK_PROTOCOL_VERSION,
+            active: idx,
+            count: slides.length
+          }, '*');
+        } catch (_) {}
+      }
+      function announceDeckProtocol() {
+        try {
+          window.parent.postMessage({
+            type: 'od:deck-ready',
+            protocolVersion: OD_DECK_PROTOCOL_VERSION,
+            capabilities: ["absolute-navigation","state-events"]
+          }, '*');
+        } catch (_) {}
+      }
+      window.addEventListener('message', function (event) {
+        var data = event && event.data;
+        if (!data || data.type !== 'od:slide') return;
+        if (data.protocolVersion != null && data.protocolVersion !== OD_DECK_PROTOCOL_VERSION) return;
+        var target = idx;
+        if (data.action === 'go') {
+          if (typeof data.index !== 'number' || !isFinite(data.index)) return;
+          target = Math.floor(data.index);
+        } else if (data.action === 'next') target = idx + 1;
+        else if (data.action === 'prev') target = idx - 1;
+        else if (data.action === 'first') target = 0;
+        else if (data.action === 'last') target = slides.length - 1;
+        else return;
+        go(target);
+      });
+      function onKey(e) {
+        if (e.__odDeckKeyHandled) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.__odDeckKeyHandled = true; e.preventDefault(); go(idx + 1); }
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.__odDeckKeyHandled = true; e.preventDefault(); go(idx - 1); }
+        else if (e.key === 'Home' || String(e.key).toLowerCase() === 'r') { e.__odDeckKeyHandled = true; e.preventDefault(); go(0); }
+        else if (e.key === 'End') { e.__odDeckKeyHandled = true; e.preventDefault(); go(slides.length - 1); }
+      }
+      // Capture phase + listen on both targets — inside the OD iframe,
+      // focus may be on window OR document; a single non-capture listener
+      // silently misses presses.
+      window.addEventListener('keydown', onKey, true);
+      document.addEventListener('keydown', onKey, true);
+      if (prev) prev.addEventListener('click', function () { go(idx - 1); });
+      if (next) next.addEventListener('click', function () { go(idx + 1); });
+      document.addEventListener('click', function (e) {
+        if (e.defaultPrevented) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+        var t = e.target;
+        while (t && t !== document.body && t !== document.documentElement) {
+          var tag = String(t.tagName || '').toUpperCase();
+          if (
+            tag === 'A' ||
+            tag === 'BUTTON' ||
+            tag === 'INPUT' ||
+            tag === 'TEXTAREA' ||
+            tag === 'SELECT' ||
+            t.isContentEditable ||
+            t.getAttribute('role') === 'button' ||
+            t.getAttribute('role') === 'link'
+          ) return;
+          t = t.parentElement;
+        }
+        focusDeck();
+        if (e.clientX < window.innerWidth / 2) go(idx - 1);
+        else go(idx + 1);
+      }, true);
+
+      // Auto-focus body so arrow keys work without an initial click.
+      document.body.setAttribute('tabindex', '-1');
+      document.body.style.outline = 'none';
+      function focusDeck() { try { window.focus(); document.body.focus({ preventScroll: true }); } catch (_) {} }
+      document.addEventListener('mousedown', focusDeck);
+      window.addEventListener('load', focusDeck);
+
+      // Restore last position.
+      try {
+        var saved = parseInt(localStorage.getItem(STORE) || '0', 10);
+        if (!isNaN(saved) && saved >= 0 && saved < slides.length) idx = saved;
+      } catch (_) {}
+
+      window.addEventListener('resize', fit);
+      announceDeckProtocol();
+      fit();
+      paint();
+      focusDeck();
+    })();
+  </script>
+</body>
+</html>

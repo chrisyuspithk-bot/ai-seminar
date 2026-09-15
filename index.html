@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 素養講座系列 · 課程索引</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── tokens — bright lecture palette, shared with every deck ──── */
+    :root {
+      --bg: #ffffff;
+      --surface: #f4f7fd;
+      --fg: #0b1220;
+      --muted: #5b6675;
+      --border: #e2e8f2;
+      --accent: #116dff;
+      --accent-ink: #0a4ec2;
+      --l1: #116dff;
+      --l2: #00a6c4;
+      --l3: #0aa06e;
+      --l4: #d98200;
+      --l5: #d61f8b;
+
+      --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
+      --fg-soft: color-mix(in oklch, var(--fg) 5%, transparent);
+
+      --font-display: 'Poppins', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+      --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', -apple-system, system-ui, sans-serif;
+      --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+      --fs-h1: clamp(38px, 5.2vw, 68px);
+      --fs-h2: clamp(26px, 3.2vw, 40px);
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: 88px;
+      --container: 1080px;
+      --gutter: 28px;
+      --radius: 8px;
+      --radius-lg: 16px;
+    }
+
+    /* ─── base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+
+    /* ─── layout ───────────────────────────────────────────────────── */
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+    .section { padding-block: clamp(44px, 7vw, var(--gap-2xl)); }
+    .section + .section { border-top: 1px solid var(--border); }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); }
+
+    /* ─── type ─────────────────────────────────────────────────────── */
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); font-weight: 800; line-height: 1.08; letter-spacing: -0.028em; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: 1.2; letter-spacing: -0.018em; margin: 0; }
+    .h3, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.35; margin: 0; }
+    .lead { font-size: clamp(17px, 1.5vw, 20px); line-height: 1.75; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 14px;
+    }
+    .meta { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── chrome ───────────────────────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in oklch, var(--bg) 90%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); padding-block: 13px; }
+    .topnav .logo { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+    .topnav .logo span { color: var(--muted); font-weight: 500; }
+    .topnav nav { display: flex; gap: 26px; }
+    .topnav nav a { font-size: 14px; color: var(--muted); transition: color .15s ease; }
+    .topnav nav a:hover { color: var(--fg); }
+    @media (max-width: 760px) { .topnav nav { display: none; } }
+
+    /* ─── hero ─────────────────────────────────────────────────────── */
+    .hero { padding-block: clamp(56px, 9vw, 118px) clamp(44px, 6vw, 78px); }
+    .hero .h1 { max-width: 16ch; margin-bottom: 22px; }
+    .hero .lead { margin-bottom: 30px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .chip {
+      display: inline-flex; align-items: baseline; gap: 8px;
+      padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface); font-size: 13px; color: var(--muted);
+    }
+    .chip b { font-family: var(--font-mono); font-weight: 600; font-size: 12px; letter-spacing: .04em; color: var(--fg); }
+
+    /* ─── section head ─────────────────────────────────────────────── */
+    .sec-head { margin-bottom: 34px; max-width: 48ch; }
+    .sec-head .h2 { margin-bottom: 12px; }
+
+    /* ─── course cards ─────────────────────────────────────────────── */
+    .courses { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .course {
+      display: flex; flex-direction: column; gap: 16px;
+      padding: 28px 30px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    .course:hover { border-color: color-mix(in oklch, var(--cc) 45%, var(--border)); box-shadow: 0 6px 24px color-mix(in oklch, var(--fg) 6%, transparent); }
+    .course:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .course-head { display: flex; gap: 20px; align-items: flex-start; }
+    .cnum {
+      font-family: var(--font-display); font-weight: 800; color: var(--cc);
+      font-size: clamp(40px, 4.4vw, 54px); line-height: 0.8; letter-spacing: -0.05em;
+    }
+    .course-head .eyebrow { margin: 0 0 8px; color: var(--muted); }
+    .ctitle { font-size: 21px; }
+    .cdesc { margin: 0; font-size: 15px; line-height: 1.78; color: var(--muted); }
+    .cmeta { display: flex; flex-wrap: wrap; gap: 6px 26px; margin: 0; }
+    .cmeta div { display: flex; gap: 9px; align-items: baseline; }
+    .cmeta dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .cmeta dd { margin: 0; font-size: 14px; color: var(--fg); }
+    .clinks {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px;
+      margin-top: auto; padding-top: 18px; border-top: 1px solid var(--border);
+    }
+    .clink-primary { display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 700; color: var(--accent-ink); }
+    .clink-primary span { transition: transform .15s ease; }
+    .clink-primary:hover span { transform: translateX(3px); }
+    .clink { font-size: 14px; color: var(--muted); transition: color .15s ease; }
+    .clink:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+    .clink-primary:focus-visible, .clink:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 3px; border-radius: 4px; }
+
+    /* ─── file table ───────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    .ftable { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 640px; }
+    .ftable th, .ftable td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .ftable th { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .ftable tbody tr:hover { background: var(--surface); }
+    .ftable .cchip {
+      font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap;
+      border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px;
+    }
+    .ftable .fname { font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ink); }
+    .ftable .fname:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .ftable .fname:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 3px; border-radius: 4px; }
+    .ftable .ftype {
+      display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em;
+      padding: 3px 9px; border-radius: 4px; background: var(--surface);
+      border: 1px solid var(--border); color: var(--fg); white-space: nowrap;
+    }
+    .ftable .fnote { color: var(--muted); font-size: 14px; }
+
+    /* ─── design tokens ────────────────────────────────────────────── */
+    .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; margin-bottom: 26px; }
+    .sw { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .sw .swchip { height: 54px; background: var(--sc); border-bottom: 1px solid var(--border); }
+    .sw .swmeta { padding: 10px 12px; }
+    .sw .swmeta b { display: block; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--fg); }
+    .sw .swmeta span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+    .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .spec { padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .spec dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .spec dd { margin: 0; font-size: 15px; }
+    .spec dd b { font-family: var(--font-display); font-weight: 700; }
+
+    /* ─── cta / footer ─────────────────────────────────────────────── */
+    .cta { text-align: center; }
+    .cta .h2 { max-width: 24ch; margin: 0 auto 14px; }
+    .cta .lead { margin: 0 auto 28px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; min-height: 44px; border-radius: var(--radius);
+      border: 1px solid transparent; font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+      transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+    .btn:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+    .btn-arrow::after { content: '→'; transition: transform .15s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+
+    .pagefoot { padding-block: 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+    .pagefoot .row-between { flex-wrap: wrap; gap: 14px; }
+
+    /* ─── responsive ───────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .courses { grid-template-columns: 1fr; }
+      .course:last-child:nth-child(odd) { grid-column: auto; }
+    }
+    @media (max-width: 560px) {
+      .course-head { gap: 14px; }
+      .clinks { gap: 8px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">AI 素養講座系列<span> · 課程索引</span></span>
+      <nav>
+        <a href="#courses">課程</a>
+        <a href="#files">檔案總表</a>
+        <a href="#design">設計系統</a>
+      </nav>
+      <a class="btn btn-secondary" href="ai-lecture-deck.html">第一門課</a>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ── Hero ─────────────────────────────────────────────────── -->
+    <section class="section hero" data-od-id="hero">
+      <div class="container">
+        <p class="eyebrow">課程索引 · 五門課 · 179 頁簡報</p>
+        <h1 class="h1">AI 素養講座系列</h1>
+        <p class="lead">從圖靈、LLM、AI Agent，到機器學習與深偽辨識——五門課的簡報、課程大綱與參考文件都收在這裡。挑一門開始，或直接翻到檔案總表。</p>
+        <div class="hero-meta">
+          <span class="chip"><b>課程</b> 5 門</span>
+          <span class="chip"><b>簡報</b> 179 頁</span>
+          <span class="chip"><b>時數</b> 630 分鐘</span>
+          <span class="chip"><b>語系</b> 繁體中文</span>
+          <span class="chip"><b>版面</b> 1920×1080 亮色調</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 課程索引 ─────────────────────────────────────────────── -->
+    <section class="section" id="courses" data-od-id="courses">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">課程索引</p>
+          <h2 class="h2">五門課，從建立座標感到動手實作</h2>
+        </div>
+
+        <div class="courses">
+
+          <article class="course" style="--cc: var(--l1)" data-od-id="course-1">
+            <div class="course-head">
+              <span class="cnum">01</span>
+              <div>
+                <p class="eyebrow">課程一 · 120 分鐘 · 48 頁</p>
+                <h3 class="ctitle">你今天用了幾次 AI？—— 從圖靈到代理人</h3>
+              </div>
+            </div>
+            <p class="cdesc">用「你今天用了幾次 AI」開場，沿著圖靈、達特茅斯會議一路走到今天的 AI Agent，讓學生先看懂 AI 的來時路與現在式，建立一張屬於自己的 AI 地圖。</p>
+            <dl class="cmeta">
+              <div><dt>受眾</dt><dd>中學生</dd></div>
+              <div><dt>形式</dt><dd>講述 ＋ 三次現場舉手表決</dd></div>
+            </dl>
+            <div class="clinks">
+              <a class="clink-primary" href="ai-lecture-deck.html">開啟 48 頁簡報 <span aria-hidden="true">→</span></a>
+              <a class="clink" href="ai-lecture-outline.html">課程大綱</a>
+              <a class="clink" href="ai-lecture-core-concepts.html">核心概念</a>
+              <a class="clink" href="ai-lecture-outline.md">大綱 .md</a>
+            </div>
+          </article>
+
+          <article class="course" style="--cc: var(--l2)" data-od-id="course-2">
+            <div class="course-head">
+              <span class="cnum">02</span>
+              <div>
+                <p class="eyebrow">課程二 · 150 分鐘 · 35 頁</p>
+                <h3 class="ctitle">從 LLM 基礎概念到 LM Studio 與 Gemini</h3>
+              </div>
+            </div>
+            <p class="cdesc">從 token、嵌入、注意力機制與訓練流程講起，再談模型選擇與本地部署；八個 PART 帶學員在 LM Studio 與 Gemini 上把模型真正跑起來。</p>
+            <dl class="cmeta">
+              <div><dt>受眾</dt><dd>大學生 · 職場初學者</dd></div>
+              <div><dt>形式</dt><dd>講述 ＋ LM Studio／Gemini 現場操作</dd></div>
+            </dl>
+            <div class="clinks">
+              <a class="clink-primary" href="ai-llm-lmstudio-deck.html">開啟 35 頁簡報 <span aria-hidden="true">→</span></a>
+              <a class="clink" href="ai-llm-lmstudio-outline.html">課程大綱</a>
+              <a class="clink" href="ai-llm-lmstudio-outline.md">大綱 .md</a>
+            </div>
+          </article>
+
+          <article class="course" style="--cc: var(--l3)" data-od-id="course-3">
+            <div class="course-head">
+              <span class="cnum">03</span>
+              <div>
+                <p class="eyebrow">課程三 · 120 分鐘 · 34 頁</p>
+                <h3 class="ctitle">從 LLM 到 Agentic AI：原理、框架與實戰</h3>
+              </div>
+            </div>
+            <p class="cdesc">說清楚 LLM 與 AI Agent 的差別：工具呼叫、記憶、規劃與多代理協作；七個 PART 以 OpenWorkers 與 OpenHands 示範怎麼把想法變成能動手的代理。</p>
+            <dl class="cmeta">
+              <div><dt>受眾</dt><dd>大學生 · 職場初學者</dd></div>
+              <div><dt>形式</dt><dd>講述 ＋ OpenWorkers／OpenHands 現場操作</dd></div>
+            </dl>
+            <div class="clinks">
+              <a class="clink-primary" href="agentic-ai-deck.html">開啟 34 頁簡報 <span aria-hidden="true">→</span></a>
+              <a class="clink" href="agentic-ai-outline.html">課程大綱</a>
+              <a class="clink" href="agentic-ai-outline.md">大綱 .md</a>
+            </div>
+          </article>
+
+          <article class="course" style="--cc: var(--l4)" data-od-id="course-4">
+            <div class="course-head">
+              <span class="cnum">04</span>
+              <div>
+                <p class="eyebrow">課程四 · 120 分鐘 · 33 頁</p>
+                <h3 class="ctitle">機器學習的第一步：從資料到模型</h3>
+              </div>
+            </div>
+            <p class="cdesc">先用 Teachable Machine 親手訓練圖片、聲音、姿勢三個模型，建立「樣本、特徵、標籤、泛化、過擬合」的直覺，再把整套流程對照回鐵達尼號資料集。</p>
+            <dl class="cmeta">
+              <div><dt>受眾</dt><dd>大學生 · 職場初學者</dd></div>
+              <div><dt>形式</dt><dd>講述 ＋ Teachable Machine 實作示範</dd></div>
+            </dl>
+            <div class="clinks">
+              <a class="clink-primary" href="ml-titanic-deck.html">開啟 33 頁簡報 <span aria-hidden="true">→</span></a>
+              <a class="clink" href="ml-titanic-outline.html">課程大綱</a>
+              <a class="clink" href="ml-titanic-outline.md">大綱 .md</a>
+            </div>
+          </article>
+
+          <article class="course" style="--cc: var(--l5)" data-od-id="course-5">
+            <div class="course-head">
+              <span class="cnum">05</span>
+              <div>
+                <p class="eyebrow">課程五 · 120 分鐘 · 33 頁</p>
+                <h3 class="ctitle">AI 時代的偵探課——防偽、深偽辨識與倫理攻防</h3>
+              </div>
+            </div>
+            <p class="cdesc">從換臉、語音克隆到生成對抗網絡的原理，練一套「停、看、查、找」的辨識方法，再談法律責任與倫理判斷，學會「有紀律地相信」。</p>
+            <dl class="cmeta">
+              <div><dt>受眾</dt><dd>中學生 · 大專生 · 教師研習</dd></div>
+              <div><dt>形式</dt><dd>講述 ＋ 分組辨識實作 ＋ 倫理討論</dd></div>
+            </dl>
+            <div class="clinks">
+              <a class="clink-primary" href="deepfake-deck.html">開啟 33 頁簡報 <span aria-hidden="true">→</span></a>
+              <a class="clink" href="deepfake-outline.html">課程大綱</a>
+              <a class="clink" href="deepfake-outline.md">大綱 .md</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 檔案總表 ─────────────────────────────────────────────── -->
+    <section class="section" id="files" data-od-id="files">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">檔案總表</p>
+          <h2 class="h2">全部 16 份文件，一次列清楚</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="ftable">
+            <thead>
+              <tr>
+                <th scope="col">課程</th>
+                <th scope="col">文件</th>
+                <th scope="col">類型</th>
+                <th scope="col">說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="cchip">01</span></td>
+                <td><a class="fname" href="ai-lecture-deck.html">ai-lecture-deck.html</a></td>
+                <td><span class="ftype">簡報</span></td>
+                <td class="fnote">48 頁 · 主教材，支援鍵盤翻頁與列印 PDF</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">01</span></td>
+                <td><a class="fname" href="ai-lecture-outline.html">ai-lecture-outline.html</a></td>
+                <td><span class="ftype">大綱</span></td>
+                <td class="fnote">課程大綱網頁版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">01</span></td>
+                <td><a class="fname" href="ai-lecture-outline.md">ai-lecture-outline.md</a></td>
+                <td><span class="ftype">Markdown</span></td>
+                <td class="fnote">大綱純文字版，方便編輯與再利用</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">01</span></td>
+                <td><a class="fname" href="ai-lecture-core-concepts.html">ai-lecture-core-concepts.html</a></td>
+                <td><span class="ftype">參考</span></td>
+                <td class="fnote">核心概念速查頁</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">02</span></td>
+                <td><a class="fname" href="ai-llm-lmstudio-deck.html">ai-llm-lmstudio-deck.html</a></td>
+                <td><span class="ftype">簡報</span></td>
+                <td class="fnote">35 頁 · 八個 PART</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">02</span></td>
+                <td><a class="fname" href="ai-llm-lmstudio-outline.html">ai-llm-lmstudio-outline.html</a></td>
+                <td><span class="ftype">大綱</span></td>
+                <td class="fnote">課程大綱網頁版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">02</span></td>
+                <td><a class="fname" href="ai-llm-lmstudio-outline.md">ai-llm-lmstudio-outline.md</a></td>
+                <td><span class="ftype">Markdown</span></td>
+                <td class="fnote">大綱純文字版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">03</span></td>
+                <td><a class="fname" href="agentic-ai-deck.html">agentic-ai-deck.html</a></td>
+                <td><span class="ftype">簡報</span></td>
+                <td class="fnote">34 頁 · 七個 PART</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">03</span></td>
+                <td><a class="fname" href="agentic-ai-outline.html">agentic-ai-outline.html</a></td>
+                <td><span class="ftype">大綱</span></td>
+                <td class="fnote">課程大綱網頁版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">03</span></td>
+                <td><a class="fname" href="agentic-ai-outline.md">agentic-ai-outline.md</a></td>
+                <td><span class="ftype">Markdown</span></td>
+                <td class="fnote">大綱純文字版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">04</span></td>
+                <td><a class="fname" href="ml-titanic-deck.html">ml-titanic-deck.html</a></td>
+                <td><span class="ftype">簡報</span></td>
+                <td class="fnote">33 頁 · 六個 PART</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">04</span></td>
+                <td><a class="fname" href="ml-titanic-outline.html">ml-titanic-outline.html</a></td>
+                <td><span class="ftype">大綱</span></td>
+                <td class="fnote">課程大綱網頁版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">04</span></td>
+                <td><a class="fname" href="ml-titanic-outline.md">ml-titanic-outline.md</a></td>
+                <td><span class="ftype">Markdown</span></td>
+                <td class="fnote">大綱純文字版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">05</span></td>
+                <td><a class="fname" href="deepfake-deck.html">deepfake-deck.html</a></td>
+                <td><span class="ftype">簡報</span></td>
+                <td class="fnote">33 頁 · 四節 ＋ 小休</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">05</span></td>
+                <td><a class="fname" href="deepfake-outline.html">deepfake-outline.html</a></td>
+                <td><span class="ftype">大綱</span></td>
+                <td class="fnote">課程大綱網頁版</td>
+              </tr>
+              <tr>
+                <td><span class="cchip">05</span></td>
+                <td><a class="fname" href="deepfake-outline.md">deepfake-outline.md</a></td>
+                <td><span class="ftype">Markdown</span></td>
+                <td class="fnote">大綱純文字版</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 設計系統 ─────────────────────────────────────────────── -->
+    <section class="section" id="design" data-od-id="design">
+      <div class="container">
+        <div class="sec-head">
+          <p class="eyebrow">設計系統</p>
+          <h2 class="h2">五門課共用同一套亮色調版面</h2>
+          <p class="lead">所有簡報與大綱都綁定同一組設計 token 與字體，投影、換頁與列印成 PDF 的行為一致，課程之間可以任意接續。</p>
+        </div>
+
+        <div class="swatches">
+          <div class="sw" style="--sc: var(--bg)"><div class="swchip"></div><div class="swmeta"><b>--bg</b><span>頁面底色</span></div></div>
+          <div class="sw" style="--sc: var(--surface)"><div class="swchip"></div><div class="swmeta"><b>--surface</b><span>卡片／區塊底</span></div></div>
+          <div class="sw" style="--sc: var(--fg)"><div class="swchip"></div><div class="swmeta"><b>--fg</b><span>主文字</span></div></div>
+          <div class="sw" style="--sc: var(--muted)"><div class="swchip"></div><div class="swmeta"><b>--muted</b><span>次要文字</span></div></div>
+          <div class="sw" style="--sc: var(--border)"><div class="swchip"></div><div class="swmeta"><b>--border</b><span>分隔線</span></div></div>
+          <div class="sw" style="--sc: var(--accent)"><div class="swchip"></div><div class="swmeta"><b>--accent</b><span>強調色</span></div></div>
+          <div class="sw" style="--sc: var(--l1)"><div class="swchip"></div><div class="swmeta"><b>--l1</b><span>課程一</span></div></div>
+          <div class="sw" style="--sc: var(--l2)"><div class="swchip"></div><div class="swmeta"><b>--l2</b><span>課程二</span></div></div>
+          <div class="sw" style="--sc: var(--l3)"><div class="swchip"></div><div class="swmeta"><b>--l3</b><span>課程三</span></div></div>
+          <div class="sw" style="--sc: var(--l4)"><div class="swchip"></div><div class="swmeta"><b>--l4</b><span>課程四</span></div></div>
+          <div class="sw" style="--sc: var(--l5)"><div class="swchip"></div><div class="swmeta"><b>--l5</b><span>課程五</span></div></div>
+        </div>
+
+        <dl class="specs">
+          <div class="spec">
+            <dt>字體</dt>
+            <dd><b>Poppins</b> ＋ <b>Noto Sans TC</b>，數字使用等寬字體</dd>
+          </div>
+          <div class="spec">
+            <dt>簡報尺寸</dt>
+            <dd><b>1920×1080</b>，亮色調、高對比，適合教室投影</dd>
+          </div>
+          <div class="spec">
+            <dt>隨附素材</dt>
+            <dd>封面與示意圖存放於 <span class="num">assets/</span>（圖靈、AlphaGo、達特茅斯、鐵達尼號、深偽四圖等）</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────────────── -->
+    <section class="section cta" id="start" data-od-id="cta">
+      <div class="container">
+        <h2 class="h2">不確定從哪一門課開始？</h2>
+        <p class="lead">建議照課程一到五的順序走：先建立 AI 的座標感，再進到 LLM 與 AI Agent，然後是機器學習的實作，最後用深偽辨識與倫理收尾。</p>
+        <a class="btn btn-primary btn-arrow" href="ai-lecture-deck.html">開啟第一門課的簡報</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container row-between">
+      <span>AI 素養講座系列 · 課程索引</span>
+      <span class="meta">5 門課 ｜ 179 頁簡報 ｜ 630 分鐘 ｜ 2026</span>
+    </div>
+  </footer>
+
+</body>
+</html>
