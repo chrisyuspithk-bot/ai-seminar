@@ -14,53 +14,68 @@ REPO = os.path.dirname(os.path.abspath(__file__))
 COURSES = [
     {
         "md": "ai-lecture-script-cantonese.md",
+        "en_md": "ai-lecture-script-en.md",
         "out": "ai-lecture-script.html",
+        "en_out": "ai-lecture-script-en.html",
         "deck": "ai-lecture-deck.html",
         "outline": "ai-lecture-outline.html",
         "accent": "l1",
-        "nav": "從圖靈到代理人",
+        "label": "第一課", "en_label": "Lesson 1",
+        "nav": "從圖靈到代理人", "en_nav": "From Turing to Agents",
         "chapters": ("Part 1", "Part 2", "Part 3"),
-        "label": "第一課",
+        "en_chapters": ("Part 1", "Part 2", "Part 3"),
     },
     {
         "md": "ai-llm-lmstudio-script-cantonese.md",
+        "en_md": "ai-llm-lmstudio-script-en.md",
         "out": "ai-llm-lmstudio-script.html",
+        "en_out": "ai-llm-lmstudio-script-en.html",
         "deck": "ai-llm-lmstudio-deck.html",
         "outline": "ai-llm-lmstudio-outline.html",
         "accent": "l2",
-        "nav": "LLM 基礎與 LM Studio",
+        "label": "第二課", "en_label": "Lesson 2",
+        "nav": "LLM 基礎與 LM Studio", "en_nav": "LLM Basics and LM Studio",
         "chapters": tuple(f"Part {i}" for i in range(1, 9)),
-        "label": "第二課",
+        "en_chapters": tuple(f"Part {i}" for i in range(1, 9)),
     },
     {
         "md": "agentic-ai-script-cantonese.md",
+        "en_md": "agentic-ai-script-en.md",
         "out": "agentic-ai-script.html",
+        "en_out": "agentic-ai-script-en.html",
         "deck": "agentic-ai-deck.html",
         "outline": "agentic-ai-outline.html",
         "accent": "l3",
-        "nav": "Agentic AI",
+        "label": "第三課", "en_label": "Lesson 3",
+        "nav": "Agentic AI", "en_nav": "Agentic AI",
         "chapters": tuple(f"Part {i}" for i in range(1, 8)) + ("BREAK",),
-        "label": "第三課",
+        "en_chapters": tuple(f"Part {i}" for i in range(1, 8)) + ("Break",),
     },
     {
         "md": "ml-titanic-script-cantonese.md",
+        "en_md": "ml-titanic-script-en.md",
         "out": "ml-titanic-script.html",
+        "en_out": "ml-titanic-script-en.html",
         "deck": "ml-titanic-deck.html",
         "outline": "ml-titanic-outline.html",
         "accent": "l4",
-        "nav": "機器學習與鐵達尼號",
+        "label": "第四課", "en_label": "Lesson 4",
+        "nav": "機器學習與鐵達尼號", "en_nav": "Machine Learning and Titanic",
         "chapters": tuple(f"Part {i}" for i in range(1, 7)) + ("開場",),
-        "label": "第四課",
+        "en_chapters": tuple(f"Part {i}" for i in range(1, 7)) + ("Opening",),
     },
     {
         "md": "deepfake-script-cantonese.md",
+        "en_md": "deepfake-script-en.md",
         "out": "deepfake-script.html",
+        "en_out": "deepfake-script-en.html",
         "deck": "deepfake-deck.html",
         "outline": "deepfake-outline.html",
         "accent": "l5",
-        "nav": "深偽辨識與倫理",
+        "label": "第五課", "en_label": "Lesson 5",
+        "nav": "深偽辨識與倫理", "en_nav": "Deepfake Detection and Ethics",
         "chapters": ("第一節", "第二節", "第三節", "第四節", "小休"),
-        "label": "第五課",
+        "en_chapters": ("Session 1", "Session 2", "Session 3", "Session 4", "Break"),
     },
 ]
 
@@ -70,6 +85,52 @@ NOTE_KINDS = {
     "學員可能問": "ask",
     "教學提示": "teach",
     "講者提示": "ops",
+    "收束提示": "ops",
+}
+
+NOTE_KINDS_EN = {
+    "Ops note": "ops",
+    "Aside": "aside",
+    "Likely question": "ask",
+    "Teaching note": "teach",
+    "Speaker tip": "ops",
+    "Wrap-up note": "ops",
+}
+
+KINDS = {"zh": NOTE_KINDS, "en": NOTE_KINDS_EN}
+
+UI = {
+    "zh": {
+        "doc_suffix": "粵語講稿",
+        "deck_btn": "看簡報",
+        "toc": "目錄",
+        "toc_back": "返回頂部 ↑",
+        "hero_lead": (
+            "每頁一節。每節第一段係可以照讀嘅講稿，其後「操作提示」"
+            "「補充」「學員可能問」係唔讀出嚟嘅備忘。"
+        ),
+        "chip_lang_k": "語言", "chip_lang_v": "粵語口語（香港）",
+        "chip_deck_k": "簡報", "chip_outline": "課程大綱",
+        "appendix": "附錄",
+        "foot": "本講稿對應簡報",
+        "slides_unit": "頁",
+    },
+    "en": {
+        "doc_suffix": "English Script",
+        "deck_btn": "View slides",
+        "toc": "Contents",
+        "toc_back": "Back to top ↑",
+        "hero_lead": (
+            "One section per slide. The first block of each section is the "
+            "script to read aloud; the Ops note / Aside / Likely question "
+            "blocks are speaker reminders, not to be read out."
+        ),
+        "chip_lang_k": "Language", "chip_lang_v": "English",
+        "chip_deck_k": "Slides", "chip_outline": "Course outline",
+        "appendix": "Appendix",
+        "foot": "This script accompanies the deck",
+        "slides_unit": "slides",
+    },
 }
 
 CSS = """
@@ -106,6 +167,9 @@ CSS = """
     @media(max-width:820px){.topnav nav{display:none}}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;min-height:42px;border-radius:var(--radius);border:1px solid var(--border);font-size:14px;font-weight:600}
     .btn:hover{border-color:var(--fg)}
+    .navbtns{display:flex;gap:8px;align-items:center}
+    .navbtns .btn:first-child{border-color:var(--cc);color:var(--cc)}
+    .navbtns .btn:first-child:hover{border-color:var(--cc);background:var(--accent-soft)}
     .hero{padding-block:clamp(44px,7vw,96px) clamp(32px,4vw,56px)}
     .hero .h1{max-width:24ch;margin-bottom:18px}
     .hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
@@ -263,14 +327,14 @@ def blocks(lines):
     return "".join(out)
 
 
-def section_body(lines):
+def section_body(lines, kinds=NOTE_KINDS):
     """Split a slide into the read-aloud script and the speaker notes."""
     say, notes = [], []
     for ln in lines:
         s = ln.strip()
         m = re.match(r"^>\s*\*\*(.+?)\*\*\s*(.*)$", s)
-        if m and m.group(1) in NOTE_KINDS:
-            notes.append((NOTE_KINDS[m.group(1)], m.group(1), m.group(2)))
+        if m and m.group(1) in kinds:
+            notes.append((kinds[m.group(1)], m.group(1), m.group(2)))
             continue
         if s.startswith(">") and notes and notes[-1][2] == "":
             notes[-1] = (notes[-1][0], notes[-1][1], re.sub(r"^>\s?", "", s))
@@ -298,15 +362,19 @@ def section_body(lines):
     return html_say + '<div class="notes">' + "".join(nhtml) + "</div>"
 
 
-def render(course):
-    src = os.path.join(REPO, course["md"])
+def render(course, lang="zh"):
+    src = os.path.join(REPO, course["md" if lang == "zh" else "en_md"])
     with open(src, encoding="utf-8") as f:
         text = f.read()
     lines = text.split("\n")
 
+    ui = UI[lang]
+    keys = course["chapters" if lang == "zh" else "en_chapters"]
+    kinds = KINDS[lang]
+
     title = ""
     intro = []
-    chapters = []          # (id, label, [ (num, name, html) ])
+    chapters = []          # [id, heading, [ slides ] ]
     cur_part = None
     cur_slide = None
 
@@ -314,7 +382,13 @@ def render(course):
         if cur_slide and cur_part is not None:
             cur_part[2].append(cur_slide)
 
-    for idx, ln in enumerate(lines):
+    part_re = re.compile(r"^(Part\s*\d+|BREAK|開場|小休|Opening|Break|Session\s*\d+|Section\s*\d+|第[一二三四]節)")
+    slide_re = re.compile(
+        r"^##\s+(?:第\s*(\d+)\s*頁|Slide\s+(\d+))\s*[·:：\-–]?\s*(.*)$", re.I
+    )
+    h2_re = re.compile(r"^##\s+(.+)$")
+
+    for ln in lines:
         s = ln.strip()
         m = re.match(r"^#\s+(.+)$", s)
         if m and not s.startswith("## "):
@@ -322,34 +396,33 @@ def render(course):
             if not title:
                 title = head
                 continue
-            for key in course["chapters"]:
+            flush_slide()
+            cur_slide = None
+            for key in keys:
                 if head.startswith(key):
-                    flush_slide()
-                    cur_slide = None
                     pid = re.sub(r"[^a-z0-9]+", "-", key.lower()).strip("-") or f"ch{len(chapters)}"
                     cur_part = [pid, head, []]
                     chapters.append(cur_part)
                     break
             else:
-                flush_slide()
-                cur_slide = None
                 pid = "app-" + str(len(chapters))
                 cur_part = [pid, head, []]
                 chapters.append(cur_part)
             continue
-        m = re.match(r"^##\s+第\s*(\d+)\s*頁\s*[·:：]?\s*(.*)$", s)
-        if m and cur_part is not None:
-            flush_slide()
-            cur_slide = [m.group(1), m.group(2) or "", []]
+        if cur_part is None:
+            intro.append(ln)
             continue
-        m = re.match(r"^##\s+(.+)$", s)
-        if m and cur_part is not None:
+        m = slide_re.match(s)
+        if m and cur_part is not None and not s.startswith("###"):
+            flush_slide()
+            cur_slide = [m.group(1) or m.group(2), m.group(3) or "", []]
+            continue
+        m = h2_re.match(s)
+        if m:
             flush_slide()
             cur_slide = [None, m.group(1), []]
             continue
-        if cur_part is None:
-            intro.append(ln)
-        elif cur_slide is not None:
+        if cur_slide is not None:
             cur_slide[2].append(ln)
         else:
             cur_part[2].append(("__prose__", "", [ln]))
@@ -357,64 +430,73 @@ def render(course):
 
     body, toc = [], []
     for pid, pname, items in chapters:
-        plain = re.match(r"^#\s*(Part\s*\d+|BREAK|開場|小休)?", pname)
-        pn = ""
-        m = re.match(r"^(Part\s*\d+|BREAK|第[一二三四]節|開場|小休)\s*[·:：]?\s*(.*)$", pname)
-        if m:
-            pn, rest = m.group(1), m.group(2)
-        else:
-            rest = pname
+        m = part_re.match(pname)
+        pn = m.group(1) if m else ""
+        rest = pname[len(pn):].lstrip(" ·:：") if pn else pname
         toc.append((pid, pname, pn))
-        head = (
-            f'<div class="part-head" id="{pid}">'
+        body.append(
+            f'<section class="part"><div class="part-head" id="{pid}">'
             f'<span class="pn">{esc(pn or "·")}</span>'
             f"<h2>{esc(rest or pname)}</h2></div>"
         )
-        body.append(f'<section class="part">{head}')
         for it in items:
             if it[0] == "__prose__":
                 body.append(f'<div class="plain">{blocks(it[2])}</div>')
                 continue
             num, name, sl = it
+            inner = section_body(sl, kinds)
             if num is None:
-                body.append(f'<div class="slide"><header class="slide-head"><h3>{esc(name)}</h3></header>{section_body(sl)}</div>')
-            else:
-                sid = f"s{num}"
                 body.append(
-                    f'<article class="slide" id="{sid}"><header class="slide-head">'
+                    f'<div class="slide"><header class="slide-head">'
+                    f"<h3>{esc(name)}</h3></header>{inner}</div>"
+                )
+            else:
+                body.append(
+                    f'<article class="slide" id="s{num}"><header class="slide-head">'
                     f'<span class="pg">{int(num):02d}</span><h3>{esc(name)}</h3></header>'
-                    f"{section_body(sl)}</article>"
+                    f"{inner}</article>"
                 )
         body.append("</section>")
 
     intro_html = f'<div class="plain">{blocks(intro)}</div>'
 
-    # TOC: list each chapter, and its slides when there are many
-    toc_items = []
+    # Table of contents: each chapter heading followed by its own slides,
+    # where the chapter has a manageable number of them.
+    toc_entries = []
     for pid, pname, pn in toc:
-        label = pname.replace("# ", "")
-        toc_items.append(f'<li><a href="#{pid}">{esc(label)}</a></li>')
+        toc_entries.append(f'<li><a href="#{pid}">{esc(pname)}</a></li>')
         chap = next(c for c in chapters if c[0] == pid)
         nums = [it for it in chap[2] if it[0] != "__prose__" and it[0] is not None]
-        if 0 < len(nums) <= 40 and pn:
+        if pn and 0 < len(nums) <= 40:
             for it in nums:
-                toc_items.append(
-                    f'<li><a class="sub" href="#s{it[0]}">{int(it[0]):02d} · {esc(it[1][:26])}</a></li>'
+                toc_entries.append(
+                    f'<li><a class="sub" href="#s{it[0]}">{int(it[0]):02d} · '
+                    f"{esc(it[1][:26])}</a></li>"
                 )
+    both_toc = "".join(toc_entries)
 
     nav_links = "".join(
-        f'<a href="#{pid}">{esc(pn or pname[:14])}</a>' for pid, pname, pn in toc if pn
+        f'<a href="#{pid}">{esc(pn or pname[:16])}</a>' for pid, pname, pn in toc if pn
     )
-    has_app = any(not pn for _, _, pn in toc)
-    if has_app:
-        nav_links += f'<a href="#{toc[-1][0]}">附錄</a>'
+    first_app = next((pid for pid, _, pn in toc if not pn), None)
+    if first_app:
+        nav_links += f'<a href="#{first_app}">{ui["appendix"]}</a>'
+
+    has_en = os.path.exists(os.path.join(REPO, course["en_md"]))
+    alt_href = course["out"] if lang == "en" else course["en_out"]
+    alt_text = "粵語版" if lang == "en" else "English"
+    lang_btn = f'<a class="btn" href="{alt_href}">{alt_text}</a>' if has_en else ""
+    lang_attr = "zh-Hant" if lang == "zh" else "en"
+    clean_title = title.split("粵語")[0].split("English Script")[0]
+    clean_title = clean_title.strip().strip("—–-·（( ").strip()
+    clean_title = re.sub(r"\s*（[^）]*）\s*$", "", clean_title).strip()
 
     return f"""<!doctype html>
-<html lang="zh-Hant">
+<html lang="{lang_attr}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)} · 粵語講稿</title>
+<title>{esc(clean_title)} · {ui['doc_suffix']}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -426,34 +508,37 @@ def render(course):
 <body>
 <header class="topnav" id="top">
   <div class="container topnav-inner">
-    <span class="logo">{esc(title.split("粵語")[0])}<span> · 粵語講稿</span></span>
+    <span class="logo">{esc(clean_title)}<span> · {ui['doc_suffix']}</span></span>
     <nav>{nav_links}</nav>
-    <a class="btn" href="{course['deck']}">看簡報</a>
+    <div class="navbtns">
+      {lang_btn}
+      <a class="btn" href="{course['deck']}">{ui['deck_btn']}</a>
+    </div>
   </div>
 </header>
 <main class="container">
   <section class="hero">
-    <p class="eyebrow">{esc(course['label'])} · 逐頁講稿</p>
+    <p class="eyebrow">{esc(course['label' if lang == 'zh' else 'en_label'])} · {ui['doc_suffix']}</p>
     <h1 class="h1">{esc(title)}</h1>
-    <p class="lead">每頁一節。每節第一段係可以照讀嘅講稿，其後「操作提示」「補充」「學員可能問」係唔讀出嚟嘅備忘。</p>
+    <p class="lead">{ui['hero_lead']}</p>
     <div class="hero-meta">
-      <span class="chip"><b>語言</b> 粵語口語（香港）</span>
-      <span class="chip"><b>簡報</b> {esc(course['deck'])}</span>
-      <span class="chip"><b>大綱</b> <a href="{course['outline']}">課程大綱</a></span>
+      <span class="chip"><b>{ui['chip_lang_k']}</b> {ui['chip_lang_v']}</span>
+      <span class="chip"><b>{ui['chip_deck_k']}</b> {esc(course['deck'])}</span>
+      <span class="chip"><b>{ui['chip_outline']}</b> <a href="{course['outline']}">{ui['chip_outline']}</a></span>
     </div>
   </section>
   <div class="layout">
     <aside class="toc">
-      <p>目錄</p>
-      <ol>{''.join(toc_items)}</ol>
+      <p>{ui['toc']}</p>
+      <ol>{both_toc}</ol>
     </aside>
     <div>
       {intro_html}
       {''.join(body)}
       <footer class="pagefoot">
         <div class="row">
-          <span>本講稿對應簡報 <code>{esc(course['deck'])}</code></span>
-          <a class="toplink" href="#top">返回頂部 ↑</a>
+          <span>{ui['foot']} <code>{esc(course['deck'])}</code></span>
+          <a class="toplink" href="#top">{ui['toc_back']}</a>
         </div>
       </footer>
     </div>
@@ -484,10 +569,15 @@ def render(course):
 
 def main():
     for c in COURSES:
-        out = render(c)
-        with open(os.path.join(REPO, c["out"]), "w", encoding="utf-8") as f:
-            f.write(out)
-        print(f"wrote {c['out']:42s} {len(out):8,d} bytes")
+        for lang in ("zh", "en"):
+            dest = c["out" if lang == "zh" else "en_out"]
+            if lang == "en" and not os.path.exists(os.path.join(REPO, c["en_md"])):
+                print(f"skip  {dest:42s} (no {c['en_md']} yet)")
+                continue
+            out = render(c, lang)
+            with open(os.path.join(REPO, dest), "w", encoding="utf-8") as f:
+                f.write(out)
+            print(f"wrote {dest:42s} {len(out):8,d} bytes")
 
 
 if __name__ == "__main__":
